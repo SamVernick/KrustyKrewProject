@@ -1,5 +1,11 @@
 import './App.css';
 import { useState, useEffect } from 'react';  // Importing useState for managing state in the component
+import InvoicePage from './pages/InvoicesPage';
+import OrderPage from './pages/OrdersPage';
+import ViewOrder from './pages/ViewOrderPage';
+import ProductPage from './pages/ProductsPage';
+import Navigation from './components/Navigation';
+
 
 // Define the backend URL for API requests using environment variables
 const backendURL = import.meta.env.VITE_API_BASE_URL;
