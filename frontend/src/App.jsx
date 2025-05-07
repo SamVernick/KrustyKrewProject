@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import './App.css';
+import { useState, useEffect } from 'react';  // Importing useState for managing state in the component
+
+// Define the backend URL for API requests using environment variables
+const backendURL = import.meta.env.VITE_API_BASE_URL;
 
 function App() {
-  const [count, setCount] = useState(0)
+
+    // Set up a state variable `message` to store and display the backend response
+    const [message, setMessage] = useState([]);
+
+    // Get the data from the database
+    const getData = async function () {
+        if (message.length > 0) return; // Skip if data is already fetched
+        try {
+            // Make a GET request to the backend
+            const response = await fetch(backendURL);
+            
+            // Convert the response into JSON format
+            const rows = await response.json();
+            
+            // Update the message state with the response data
+            setMessage(JSON.stringify(rows));
+            
+        } catch (error) {
+          // If the API call fails, print the error to the console
+          console.log(error);
+        }
+    };
+
+    // Load table on page load
+    useEffect(() => {
+        getData();
+    }, []);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+          <h1>MySQL Results:</h1>
+          <p>{message}</p>
     </>
-  )
-}
+  );
 
-export default App
+} export default App;
