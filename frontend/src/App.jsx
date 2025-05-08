@@ -2,9 +2,10 @@ import './App.css';
 import { useState, useEffect } from 'react';  // Importing useState for managing state in the component
 import InvoicePage from './pages/InvoicesPage';
 import OrderPage from './pages/OrdersPage';
-import ViewOrder from './pages/ViewOrderPage';
 import ProductPage from './pages/ProductsPage';
+import CustomerPage from './pages/CustomersPage';
 import Navigation from './components/Navigation';
+import OrderDetailsPage from './pages/ViewOrderPage';
 
 
 // Define the backend URL for API requests using environment variables
@@ -43,6 +44,23 @@ function App() {
     <>
           <h1>MySQL Results:</h1>
           <p>{message}</p>
+
+          <div className="app">
+            <header>
+              <h1>Welcome to the Krusty Krew Database!</h1>
+            </header>
+            <p>Use the Navigation to see the different datatables.</p>
+            <Router>
+              <Navigation/>
+              <Routes>
+                <Route path="/" element={<InvoicePage />}></Route>
+                <Route path="/Customers" element={<CustomerPage />}></Route>
+                <Route path="/Orders" element={<OrderPage />}></Route>
+                <Route path="/OrderDetails" element={<OrderDetailsPage />}></Route>
+                <Route path="/Products" element={<ProductPage />}></Route>
+              </Routes>
+            </Router>
+          </div>
     </>
   );
 
