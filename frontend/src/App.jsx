@@ -1,5 +1,6 @@
 import './App.css';
 import { useState, useEffect } from 'react';  // Importing useState for managing state in the component
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import InvoicePage from './pages/InvoicesPage';
 import OrderPage from './pages/OrdersPage';
 import ProductPage from './pages/ProductsPage';
