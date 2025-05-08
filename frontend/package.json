@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "development": "vite",
+    "dev": "vite",
     "build": "vite build",
     "production": "npx forever start reactServer.cjs",
     "stop_production": "npx forever stop reactServer.cjs",
