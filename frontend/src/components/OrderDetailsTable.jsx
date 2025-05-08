@@ -47,4 +47,4 @@ function OrderDetailsTable() {
     );
 }
 
-export default OrderDetailsTable;
+export default OrderDetailsTable; 
