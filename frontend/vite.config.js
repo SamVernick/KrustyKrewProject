@@ -11,7 +11,11 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins: [react()],
-    // Make Vite aware of the .env file in the parent directory
-    envDir: path.resolve(__dirname, '..')
+    envDir: path.resolve(__dirname, '..'),
+    build: {
+      rollupOptions: {
+        external: []
+      }
+    }
   }
 })
