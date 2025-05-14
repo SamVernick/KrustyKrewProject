@@ -33,7 +33,7 @@ function OrderDetailsTable() {
                     <td>4</td>
                     <td>2</td>
                     <td>10</td>
-                    <td>8.00</td>
+                    <td>20.00</td>
                 </tr>
                 <tr>
                     <td>4</td>

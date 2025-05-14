@@ -11,11 +11,11 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins: [react()],
-    envDir: path.resolve(__dirname, '..'),
+    envDir: path.resolve(__dirname, '..')/*,
     build: {
       rollupOptions: {
         external: []
       }
-    }
+    }*/
   }
 })
