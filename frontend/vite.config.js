@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { loadEnv } from 'vite'
 import path from 'path'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -10,8 +11,11 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, path.resolve(__dirname, '..'), 'VITE_')
   
   return {
-    plugins: [react()],
-    envDir: path.resolve(__dirname, '..')/*,
+    plugins: [
+      react(),
+      tailwindcss(),
+    ],
+    envDir: path.resolve(__dirname, '..'),
     build: {
       rollupOptions: {
         external: []

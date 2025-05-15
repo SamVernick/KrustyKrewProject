@@ -6,7 +6,7 @@ function OrdersPage() {
     //const nvaigate = useNavigate();
     return (
         <>
-            <h2>List of Orders</h2>
+            <h1 className="text-xl font-medium underline underline-offset-2 mb-4 text-black">List of Orders</h1>
             <OrdersTable/>
         </>
     )

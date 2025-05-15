@@ -6,7 +6,7 @@ function InvoicesPage() {
     //const nvaigate = useNavigate();
     return (
         <>
-            <h2>List of Invoices</h2>
+            <h1 className="text-xl font-medium underline underline-offset-2 mb-4 text-black">List of Invoices:</h1>
             <InvoiceTable/>
         </>
     )

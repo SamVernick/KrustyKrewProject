@@ -3,41 +3,41 @@
 
 function InvoiceTable() {
     return (
-        <table className="table-style">
-            <thead>
+        <table className="min-w-full border-2 border-black shadow-sm rounded-lg overflow-hidden">
+            <thead className="border-2 border-black margin-2 padding-2">
                 <tr>
-                    <th>Invoice Number</th>
-                    <th>Order ID</th>
-                    <th>Customer ID</th>
-                    <th>Total</th>
-                    <th>Date of Sale</th>
-                    <th>Paid</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider border-b">Invoice Number</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider border-b">Order ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider border-b">Customer ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider border-b">Total</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider border-b">Date of Sale</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider border-b">Paid</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>1</td>
-                    <td>4</td>
-                    <td>10.00</td>
-                    <td>2025-05-01</td>
-                    <td>0</td>
+            <tbody className="divide-y divide-black">
+                <tr className="group hover:bg-blue-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">1</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">1</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">4</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">10.00</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">2025-05-01</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">0</td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td>3</td>
-                    <td>3</td>
-                    <td>14.00</td>
-                    <td>2024-06-27</td>
-                    <td>0</td>
+                <tr className="group hover:bg-blue-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">2</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">3</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">3</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">14.00</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">2024-06-27</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">0</td>
                 </tr>
-                <tr>
-                    <td>3</td>
-                    <td>2</td>
-                    <td>1</td>
-                    <td>20.00</td>
-                    <td>2023-12-19</td>
-                    <td>0</td>
+                <tr className="group hover:bg-blue-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">3</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">2</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">1</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">20.00</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">2023-12-19</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">0</td>
                 </tr>
             </tbody>
         </table>
