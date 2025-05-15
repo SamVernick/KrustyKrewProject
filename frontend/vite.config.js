@@ -11,20 +11,15 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, path.resolve(__dirname, '..'), 'VITE_')
   
   return {
-<<<<<<< HEAD
-    plugins: [react()],
-    envDir: path.resolve(__dirname, '..')/*,
-=======
     plugins: [
       react(),
       tailwindcss(),
     ],
     envDir: path.resolve(__dirname, '..'),
->>>>>>> main
     build: {
       rollupOptions: {
         external: []
       }
-    }*/
+    }
   }
 })
