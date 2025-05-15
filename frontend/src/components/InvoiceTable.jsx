@@ -7,8 +7,8 @@ function InvoiceTable() {
             <thead>
                 <tr>
                     <th>Invoice Number</th>
-                    <th>Order ID</th>
-                    <th>Customer ID</th>
+                    <th>Order Number</th>
+                    <th>Customer Name</th> 
                     <th>Total</th>
                     <th>Date of Sale</th>
                     <th>Paid</th>
@@ -18,7 +18,7 @@ function InvoiceTable() {
                 <tr>
                     <td>1</td>
                     <td>1</td>
-                    <td>4</td>
+                    <td>Bubble Bass</td>
                     <td>10.00</td>
                     <td>2025-05-01</td>
                     <td>0</td>
@@ -26,7 +26,7 @@ function InvoiceTable() {
                 <tr>
                     <td>2</td>
                     <td>3</td>
-                    <td>3</td>
+                    <td>Patrick Star</td>
                     <td>14.00</td>
                     <td>2024-06-27</td>
                     <td>0</td>
@@ -34,7 +34,7 @@ function InvoiceTable() {
                 <tr>
                     <td>3</td>
                     <td>2</td>
-                    <td>1</td>
+                    <td>Mermaid Man</td>
                     <td>20.00</td>
                     <td>2023-12-19</td>
                     <td>0</td>

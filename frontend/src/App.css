@@ -8,6 +8,10 @@
     color: rgb(174, 11, 54);
 }
 
+.table-style {
+    background-color: #aec3ed;
+}
+
 :link {
     padding: 10pt;
 }
