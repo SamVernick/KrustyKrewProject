@@ -3,7 +3,7 @@
 
 function OrdersTable() {
     return (
-        <table className="min-w-full border-2 border-black shadow-sm rounded-lg overflow-hidden">
+        <table className="min-w-full border-2 border-black shadow-sm rounded-lg overflow-hidden mb-6">
             <thead className="border-2 border-black margin-2 padding-2">
                 <tr>
                     <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider border-b">Order Number</th>
