@@ -79,10 +79,28 @@ app.post('/api/reset', async (req, res) => {
         const path = require('path');
         
         const ddlPath = path.join(__dirname, 'database', 'DDL.sql');
+        const plsqlPath = path.join(__dirname, 'database', 'plsql.sql');
+        console.log('Reading DDL script...');
         const ddlScript = fs.readFileSync(ddlPath, 'utf8');
         
-        // Execute script directly as a single query - MariaDB supports this
+        console.log('Reading PL/SQL script...');
+        const plsqlScript = fs.readFileSync(plsqlPath, 'utf8');
+        
+        console.log('Executing DDL script...');
         await db.query(ddlScript);
+
+        console.log('Processing PL/SQL script...');
+        // Process the stored procedure differently
+        // Remove DELIMITER statements and combine the procedure
+        const processedProcedure = plsqlScript
+            .replace(/DELIMITER \/\/|DELIMITER ;/g, '')
+            .replace(/END \/\//g, 'END;');
+            
+        
+        console.log('Executing PL/SQL script...');
+        await db.query(processedProcedure);
+        
+        console.log('Database reset complete!');
         
         res.status(200).json({ message: 'Database reset successfully' });
     } catch (error) {
