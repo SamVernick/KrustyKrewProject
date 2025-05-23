@@ -29,10 +29,11 @@
 -- DELIMITER ;
 
 
-
+-- Drops the delete_product procedure
 DROP PROCEDURE IF EXISTS delete_product;
 DELIMITER //
 
+-- Makes the delete_product procedure
 CREATE PROCEDURE delete_product(
     IN product_id INT
 )
@@ -40,6 +41,7 @@ COMMENT 'Deletes a product from the Product table'
 BEGIN 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
 
+    -- Creates the error handler message
     BEGIN 
         ROLLBACK;
         SELECT 'Deletion error' AS message;
@@ -47,11 +49,15 @@ BEGIN
 
     START TRANSACTION;
 
+    -- Deletes the product matching the product id passed in
     DELETE FROM Products WHERE id = product_id;
+
+    -- If the deletion fails then it prints out the error message
     IF ROW_COUNT() = 0 THEN 
         ROLLBACK;
         SELECT 'Deletion error' AS message;
     ELSE 
+        -- If the deletion was a success it commits the changes and sets the message as being successful
         COMMIT;
         SELECT 'Product deleted from Product table' AS message;
     END IF;
