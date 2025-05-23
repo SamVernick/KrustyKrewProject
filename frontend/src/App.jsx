@@ -58,7 +58,7 @@ function App() {
             audioRef.current.play();
         }
         
-        // After a delay to allow the animation and audio to start, set hasEntered to true
+        // After a delay to allow the audio to start, set hasEntered to true
         // We'll use the video's duration as a guide
         setTimeout(() => {
             setHasEntered(true);

@@ -1,6 +1,7 @@
 import CustomersTable from "../components/CustomersTable";
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import ResetButton from "../components/ResetButton";
 
 function CustomersPage() {
     //const nvaigate = useNavigate();
@@ -49,6 +50,7 @@ function CustomersPage() {
                 </div>
                 <input type="submit" className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 cursor-pointer mt-2"/>
             </form>
+            <ResetButton></ResetButton>
         </>
     )
 }
