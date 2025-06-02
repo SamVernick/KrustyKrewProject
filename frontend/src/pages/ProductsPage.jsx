@@ -1,14 +1,17 @@
 import ProductsTable from "../components/ProductsTable";
 import { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useReset } from '../context/ResetContext';
 import ResetButton from "../components/ResetButton";
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 function ProductsPage() {
     const [products, setProducts] = useState([]);
     const [deleteProductId, setDeleteProductId] = useState("");
+    const [updateProductId, setUpdateProductId] = useState("");
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+
+    const { resetMessage, resetSuccess, resetTriggered, setResetMessage } = useReset();
 
     // Fetch products from the backend
     const fetchProducts = async () => {
@@ -28,25 +31,19 @@ function ProductsPage() {
         }
     };
 
-    // Handle reset database
-    const handleReset = async () => {
-        try {
-            setIsLoading(true);
-            const response = await fetch(`${API_URL}/api/reset`, {
-                method: 'POST'
-            });
-            if (!response.ok) {
-                throw new Error('Failed to reset database');
+    useEffect(() => {
+        if(resetTriggered) {
+            setMessage(resetMessage);
+            if (resetSuccess) {
+                fetchProducts();
             }
-            setMessage('Database reset successfully!');
-            // Refetch products after reset
-            fetchProducts();
-        } catch (error) {
-            console.error('Error resetting database:', error);
-            setMessage('Failed to reset database. Please try again.');
             setIsLoading(false);
         }
-    };
+    }, [resetTriggered, resetMessage, resetSuccess]);
+
+    useEffect(() => {
+        fetchProducts();
+    },[]);
 
     // Handle delete product
     const handleDelete = async (e) => {
@@ -74,10 +71,29 @@ function ProductsPage() {
         }
     };
 
-    // Fetch products on component mount
-    useEffect(() => {
-        fetchProducts();
-    }, []);
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        if(!updateProductId){
+            setMessage("Please select a product to update");
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const response = await fetch(`${API_URL}/api/products/${updateProductId}`, {
+                method: 'PUT'
+            });
+            if(!response.ok){
+                throw new Error('Failed to update product');
+            }
+            setMessage('Product updated successfully!');
+            fetchProducts();
+        } catch (error){
+            console.error('Error updating product:', error);
+            setMessage('Failed to update product. Please try again.');
+            setIsLoading(false);
+        }
+    }
 
     return (
         <>
@@ -99,7 +115,7 @@ function ProductsPage() {
                     
                     <div className="flex-1 space-y-2">
                         <label className="text-lg font-medium text-black">Price: </label>
-                        <input type="text" className="border border-black rounded-lg p-2 w-full bg-cyan-100" />
+                        <input type="number" className="border border-black rounded-lg p-2 w-full bg-cyan-100" />
                     </div>
                 </div>
                 
@@ -107,14 +123,18 @@ function ProductsPage() {
             </form>
 
             <h2 className="text-xl font-medium underline underline-offset-2 mb-2 mt-6 text-black">Update a Product</h2>
-            <form className="border-2 border-black rounded-lg p-4 space-y-4">
+            <form className="border-2 border-black rounded-lg p-4 space-y-4" onSubmit={handleUpdate}>
                 <div className="space-y-2">
                     <label className="text-lg font-medium text-black">Old Product Name: </label>
-                    <select className="border border-black rounded-lg p-2 bg-cyan-100">
-                        <option>Krabby Patty</option>
-                        <option>Krabby Meal</option>
-                        <option>Salty Sea Dog</option>
-                        <option>Kelp Shake</option>
+                    <select className="border border-black rounded-lg p-2 bg-cyan-100"
+                        value={updateProductId}
+                        onChange={(e) => setUpdateProductId(e.target.value)}
+                        required>
+                        {products.map(product => (
+                            <option key={product.id} value={product.id}>
+                                {product.productName}
+                            </option>
+                        ))}
                     </select>
                 </div>
                 
@@ -158,9 +178,6 @@ function ProductsPage() {
                     disabled={isLoading}
                 />
             </form>
-            <div className="mt-8">
-                <ResetButton onClick={handleReset}/>
-            </div>
         </>
     )
 }
