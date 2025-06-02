@@ -29,6 +29,87 @@
 -- DELIMITER ;
 
 
+-- Drops the create_product procedure
+DROP PROCEDURE IF EXISTS create_product;
+DELIMITER //
+
+-- Makes the create_product procedure
+CREATE PROCEDURE create_product(
+    IN p_name varchar(45),
+    IN p_price decimal(6,2),
+    OUT new_productID int
+)
+COMMENT "Adds a new product to Products table"
+BEGIN
+    DECLARE p_id int;
+    -- Creates the error handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN 
+        ROLLBACK;
+        SET new_productID = -99;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO `Products` (productName, price)
+    VALUES (p_name, p_price);
+
+    IF ROW_COUNT() = 0 THEN 
+        ROLLBACK;
+        SELECT 'Creation error' AS message;
+    ELSE 
+        -- If the creation was a success it commits the changes and sets the message as being successful
+        SET p_id = LAST_INSERT_ID();
+        SET new_productID = p_id;
+        COMMIT;
+        SELECT 'Product added to Product table!' AS message;
+    END IF;
+
+END //
+DELIMITER ;
+
+
+-- Drops the update_product procedure
+DROP PROCEDURE IF EXISTS update_product;
+DELIMITER //
+
+-- Creates update_product procedure
+CREATE PROCEDURE update_product(
+    IN p_id INT,
+    IN new_p_name varchar(255),
+    IN new_p_price decimal(6,2)
+)
+COMMENT 'Updates a product that is currently in the Products table'
+proc_end: BEGIN
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    -- Makes the error handler message
+    BEGIN
+        ROLLBACK;
+        SELECT 'Update error!' AS message;
+    END;
+
+    START TRANSACTION;
+
+    -- Checks if the id exists currently in the Products table
+    IF EXISTS (SELECT 1 FROM Products WHERE id = p_id) THEN 
+        -- Updates product name and price for whatever the user inserted, where the id matches
+        UPDATE Products SET productName = new_p_name, price = new_p_price WHERE id = p_id;
+        SELECT 'Updated product successfully!' AS result;
+    ELSE
+        -- if the id couldn't be found rollsback
+        ROLLBACK;
+        SELECT 'Update error!' AS result;
+        LEAVE proc_end;
+    END IF;
+
+    -- Return the new values of the product that was updated
+    -- SELECT p.productName AS productName, p.price AS price FROM Products p WHERE p.id = p_id;
+    COMMIT;
+END //
+DELIMITER ;
+
+
 -- Drops the delete_product procedure
 DROP PROCEDURE IF EXISTS delete_product;
 DELIMITER //
@@ -37,7 +118,7 @@ DELIMITER //
 CREATE PROCEDURE delete_product(
     IN product_id INT
 )
-COMMENT 'Deletes a product from the Product table'
+COMMENT 'Deletes a product from the Products table'
 BEGIN 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
 
