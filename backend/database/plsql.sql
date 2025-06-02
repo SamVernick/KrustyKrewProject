@@ -29,11 +29,55 @@
 -- DELIMITER ;
 
 
+-- ORDER DETAILS PROCEDURES START BELOW:
+-- TODO!! Add a trigger for each time update_order_details is called, it updates the price column in orderdetails and in orders
 
+
+-- Drops the update_order_details procedure
+DROP PROCEDURE IF EXISTS update_order_details;
+DELIMITER //
+
+-- Creates update_order_details procedure
+CREATE PROCEDURE update_order_details(
+    IN od_id INT, -- order details ID
+    IN p_id INT,
+    IN o_id INT, -- order ID
+    IN new_quantity INT
+)
+COMMENT 'Updates the quantity of a product that is already in the Order Details table'
+proc_end: BEGIN
+    DECLARE product_id INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    -- Makes the error handler message
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error: Could not update OrderDetails!' AS message;
+    END;
+
+    START TRANSACTION;
+
+    -- Checks if the all the ids exists currently in the OrderDetails table for that specific order
+    IF EXISTS (SELECT OrderDetails.id, Orders.id, Products.id FROM OrderDetails INNER JOIN Products ON OrderDetails.productID = Products.id INNER JOIN Orders ON OrderDetails.orderID = Orders.id WHERE OrderDetails.id = od_id AND Products.id = p_id AND Orders.id = o_id) THEN 
+        UPDATE OrderDetails SET orderQuantity = new_quantity WHERE id = od_id AND productID = p_id AND orderID = o_id;
+        SELECT 'Updated OrderDetails successfully!' AS message;
+    ELSE
+        -- if the id couldn't be found rollsback
+        ROLLBACK;
+        SELECT 'Error: Products/Orders/OrderDetails id does not exist for that Order Number try again.' AS message;
+        LEAVE proc_end;
+    END IF;
+    COMMIT;
+END //
+DELIMITER ;
+
+
+
+-- ORDER DETAILS PROCEDURES HAVE ENDED
 
 
 
 -- PRODUCTS SQL PROCEDURES START BELOW:
+-- TODO add a trigger for each time product price is updated, it updates the orders dropdown since then but keeps the invoices items the same
 
 
 -- Drops the create_product procedure
@@ -106,7 +150,7 @@ proc_end: BEGIN
     ELSE
         -- if the id couldn't be found rollsback
         ROLLBACK;
-        SELECT 'Update error!' AS result;
+        SELECT 'Update error!' AS message;
         LEAVE proc_end;
     END IF;
 
@@ -154,4 +198,4 @@ END //
 
 DELIMITER ; 
 
--- PRODUCTS SQL PROCEDURES ENDED
+-- PRODUCTS SQL PROCEDURES HAVE ENDED
