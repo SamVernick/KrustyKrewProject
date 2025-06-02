@@ -29,6 +29,13 @@
 -- DELIMITER ;
 
 
+
+
+
+
+-- PRODUCTS SQL PROCEDURES START BELOW:
+
+
 -- Drops the create_product procedure
 DROP PROCEDURE IF EXISTS create_product;
 DELIMITER //
@@ -146,3 +153,5 @@ BEGIN
 END //
 
 DELIMITER ; 
+
+-- PRODUCTS SQL PROCEDURES ENDED
