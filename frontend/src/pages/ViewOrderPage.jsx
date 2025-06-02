@@ -3,9 +3,12 @@ import SelectQuantity from "../components/SelectQuantity";
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import ResetButton from "../components/ResetButton";
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 function OrderDetailsPage() {
-    //const nvaigate = useNavigate();
+    const [orderDetails, setOrderDetails] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    
     return (
         <>
             <h1 className="text-xl font-medium underline underline-offset-2 mb-4 text-black">Order Details</h1>
