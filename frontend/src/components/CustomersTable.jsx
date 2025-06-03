@@ -1,7 +1,7 @@
 //will import data from database in the future
 //for now it will be hard coded
 
-function CustomersTable() {
+function CustomersTable({ customers = [] }) {
     return (
         <table className="min-w-full border-2 border-black shadow-sm rounded-lg overflow-hidden mb-6">
             <thead className="border-2 border-black margin-2 padding-2">
@@ -13,30 +13,20 @@ function CustomersTable() {
                 </tr>
             </thead>
             <tbody className="divide-y divide-black">
-                <tr className="group hover:bg-blue-400">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">1</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">Mermaid</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">Man</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">0.00</td>
-                </tr>
-                <tr className="group hover:bg-blue-400">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">2</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">Barnacle</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">Boy</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">0.00</td>
-                </tr>
-                <tr className="group hover:bg-blue-400">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">3</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">Patrick</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">Star</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">0.00</td>
-                </tr>
-                <tr className="group hover:bg-blue-400">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">4</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">Bubble</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">Bass</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">0.00</td>
-                </tr>
+                {customers.length > 0 ? (
+                    customers.map(customer => (
+                        <tr key={customer.id} className="group hover:bg-blue-400">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{customer.id}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{customer.firstName}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{customer.lastName}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{Number(customer.moneySpent).toFixed(2)}</td>
+                        </tr>
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan="3" className="px-6 py-4 whitespace-nowrap text-sm text-center text-black">No customers found</td>
+                    </tr>
+                )}
             </tbody>
         </table>
     );

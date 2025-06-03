@@ -58,6 +58,54 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+app.get('/api/orderdetails', async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                od.id, 
+                od.productID,
+                p.productName,
+                od.orderID, 
+                od.orderQuantity, 
+                od.priceTotal
+            FROM OrderDetails od
+            JOIN Products p ON od.productID = p.id
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching order details:", error);
+        res.status(500).json({ error: "Failed to fetch order details" });
+    }
+})
+
+app.get('/api/orders', async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT
+                o.id,
+                c.firstName,
+                c.lastName,
+                o.orderTotal
+            FROM Orders o
+            JOIN Customers c ON o.customerID = c.id
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        res.status(500).json({ error: "Failed to fetch orders" });
+    }
+});
+
+app.get('/api/customers', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM Customers');
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching customers:", error);
+        res.status(500).json({ error: "Failed to fetch customers" });
+    }
+});
+
 // Route to create a product
 app.post('/api/products', async (req, res) => {
     try {
