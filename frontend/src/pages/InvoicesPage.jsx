@@ -1,11 +1,8 @@
 import InvoiceTable from "../components/InvoiceTable";
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
-=======
 import { useReset } from "../context/ResetContext";
 const API_URL = import.meta.env.VITE_API_BASE_URL
->>>>>>> bianca-rn
 
 function InvoicesPage() {
     const [invoices, setInvoices] = useState([]);
@@ -49,11 +46,7 @@ function InvoicesPage() {
         <>
             <div className="bd-47">
                 <h1 className="text-xl font-medium underline underline-offset-2 mb-4 text-black">List of Invoices:</h1>
-<<<<<<< HEAD
-                <InvoiceTable/>
-=======
                 <InvoiceTable invoices={invoices}/>
->>>>>>> bianca-rn
             </div>
         </>
     )
