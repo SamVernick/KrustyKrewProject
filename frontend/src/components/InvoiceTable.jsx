@@ -20,7 +20,7 @@ function InvoiceTable({ invoices = []}) {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{invoice.id}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{invoice.orderID}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{invoice.firstName} {invoice.lastName}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{Number(invoice.total).toFixed(2)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{Number(invoice.orderTotal).toFixed(2)}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{new Date(invoice.saleDate).toISOString().slice(0,10)}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-black group-hover:text-white">{invoice.paid}</td>
                         </tr>
