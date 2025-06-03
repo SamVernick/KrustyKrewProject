@@ -58,6 +58,7 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+//Route to get all OrderDetails
 app.get('/api/orderdetails', async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -78,6 +79,7 @@ app.get('/api/orderdetails', async (req, res) => {
     }
 })
 
+//Route to get all Orders
 app.get('/api/orders', async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -96,6 +98,7 @@ app.get('/api/orders', async (req, res) => {
     }
 });
 
+//Route to get all Customers
 app.get('/api/customers', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM Customers');
@@ -106,7 +109,30 @@ app.get('/api/customers', async (req, res) => {
     }
 });
 
-// Route to create a product
+//Rout to get all Invoices
+app.get('/api/invoices', async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT
+                i.id,
+                i.orderID,
+                c.firstName,
+                c.lastName,
+                o.orderTotal,
+                i.saleDate,
+                i.paid
+            FROM Invoices i
+            JOIN Customers c ON i.customerID = c.id
+            JOIN Orders o ON i.orderID = o.id
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching invoices:", error);
+        res.status(500).json({ error: "Failed to fetch invoices" });
+    }
+});
+
+//Route to create a product
 app.post('/api/products', async (req, res) => {
     try {
         const productName = req.body.name;
