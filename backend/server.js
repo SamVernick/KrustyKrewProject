@@ -59,39 +59,39 @@ app.get('/api/products', async (req, res) => {
 });
 
 // Route to create a product
-app.post('/api/products', async (req, res) => {
-    try {
-        const productName = req.body.name;
-        const productPrice = req.body.price;
-        if(isNaN(parseInt(productPrice))) {
-            throw Error ("Product price is not a number.");
-        }
-        // Use the stored procedure to update the product
-        await db.query('CALL create_product(?, ?, @new_productID)', [productName, productPrice]);
-        res.status(200).json({ message: 'Product created successfully' });
-    } catch (error) {
-        console.error("Error creating product:", error);
-        res.status(500).json({ error: "Failed to create product" });
-    }
-});
+// app.post('/api/products', async (req, res) => {
+//     try {
+//         const productName = req.body.name;
+//         const productPrice = req.body.price;
+//         if(isNaN(parseInt(productPrice))) {
+//             throw Error ("Product price is not a number.");
+//         }
+//         // Use the stored procedure to update the product
+//         await db.query('CALL create_product(?, ?, @new_productID)', [productName, productPrice]);
+//         res.status(200).json({ message: 'Product created successfully' });
+//     } catch (error) {
+//         console.error("Error creating product:", error);
+//         res.status(500).json({ error: "Failed to create product" });
+//     }
+// });
 
-// Route to update a product
-app.put('/api/products/:id', async (req, res) => {
-    try {
-        const productId = req.params.id;
-        const productName = req.body.name;
-        const productPrice = req.body.price;
-        if(isNaN(parseInt(productPrice))) {
-            throw Error ("Product price is not a number.");
-        }
-        // Use the stored procedure to update the product
-        await db.query('CALL update_product(?, ?, ?)', [productId, productName, productPrice]);
-        res.status(200).json({ message: 'Product updated successfully' });
-    } catch (error) {
-        console.error("Error updating product:", error);
-        res.status(500).json({ error: "Failed to update product" });
-    }
-});
+// // Route to update a product
+// app.put('/api/products/:id', async (req, res) => {
+//     try {
+//         const productId = req.params.id;
+//         const productName = req.body.name;
+//         const productPrice = req.body.price;
+//         if(isNaN(parseInt(productPrice))) {
+//             throw Error ("Product price is not a number.");
+//         }
+//         // Use the stored procedure to update the product
+//         await db.query('CALL update_product(?, ?, ?)', [productId, productName, productPrice]);
+//         res.status(200).json({ message: 'Product updated successfully' });
+//     } catch (error) {
+//         console.error("Error updating product:", error);
+//         res.status(500).json({ error: "Failed to update product" });
+//     }
+// });
 
 // Route to delete a product
 app.delete('/api/products/:id', async (req, res) => {

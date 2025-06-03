@@ -31,6 +31,54 @@
 
 -- ORDER DETAILS PROCEDURES START BELOW:
 -- TODO!! Add a trigger for each time update_order_details is called, it updates the price column in orderdetails and in orders
+-- TODO!! Get rid of order.id/ o_id in update order details
+-- TODO!! Get rid of of p_id and o_id for delete order details, ONLY use od_id
+
+
+-- Drops the create_order_details procedure
+DROP PROCEDURE IF EXISTS create_order_details;
+DELIMITER //
+
+-- Creates create_order_details procedure
+CREATE PROCEDURE create_order_details(
+    IN p_id INT,
+    IN o_id INT,
+    IN quantity INT,
+    OUT new_order_detail_id INT
+)
+COMMENT "Adds a new order detail to an existing order in Order Details table"
+BEGIN
+    DECLARE od_id int;
+    DECLARE t_price decimal(6,2);
+    -- Creates the error handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN 
+        ROLLBACK;
+        SET new_order_detail_id = -99;
+    END;
+
+    START TRANSACTION;
+    IF EXISTS(SELECT Orders.id, Products.id FROM OrderDetails INNER JOIN Products ON OrderDetails.productID = Products.id INNER JOIN Orders ON OrderDetails.orderID = Orders.id WHERE Products.id = p_id AND Orders.id = o_id) THEN
+        INSERT INTO `OrderDetails` (productID, orderID, orderQuantity, priceTotal)
+        VALUES (p_id, o_id, quantity, ((SELECT Products.price FROM Products WHERE Products.id = p_id)*quantity));
+
+        IF ROW_COUNT() = 0 THEN 
+            ROLLBACK;
+            SELECT 'Creation error: Insertion failed' AS message;
+        ELSE 
+            -- If the creation was a success it commits the changes and sets the message as being successful
+            SET od_id = LAST_INSERT_ID();
+            SET new_order_detail_id = od_id;
+            COMMIT;
+            SELECT 'Order Detail added to OrderDetails table!' AS message;
+        END IF;
+    ELSE
+        ROLLBACK;
+        SELECT 'Creation error: Product/Order id is incorrect' AS message;
+    END IF;
+
+END //
+DELIMITER ;
 
 
 -- Drops the update_order_details procedure
@@ -69,6 +117,46 @@ proc_end: BEGIN
     COMMIT;
 END //
 DELIMITER ;
+
+
+-- Deletes the delete_order_details procedure
+DROP PROCEDURE IF EXISTS delete_order_details;
+DELIMITER //
+
+-- Makes the delete_order_details procedure
+CREATE PROCEDURE delete_order_details(
+    IN od_id INT,   -- order details ID
+    IN p_id INT,
+    IN o_id INT    -- order ID
+)
+COMMENT 'Deletes a product from the OrderDetails table, which is part of a certain order number'
+BEGIN 
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+
+    -- Creates the error handler message
+    BEGIN 
+        ROLLBACK;
+        SELECT 'Deletion error' AS message;
+    END;
+
+    START TRANSACTION;
+
+    -- Deletes the product from the order number matching the product id, order id, and order details id passed in
+    IF EXISTS(SELECT OrderDetails.id, Orders.id, Products.id FROM OrderDetails INNER JOIN Products ON OrderDetails.productID = Products.id INNER JOIN Orders ON OrderDetails.orderID = Orders.id WHERE OrderDetails.id = od_id AND Products.id = p_id AND Orders.id = o_id) THEN 
+        DELETE FROM OrderDetails WHERE OrderDetails.id = od_id AND productID = p_id AND orderID = o_id;
+    END IF;
+    -- If the deletion fails then it prints out the error message
+    IF ROW_COUNT() = 0 THEN 
+        ROLLBACK;
+        SELECT 'Deletion error' AS message;
+    ELSE 
+        -- If the deletion was a success it commits the changes and sets the message as being successful
+        COMMIT;
+        SELECT 'Product deleted from Product table' AS message;
+    END IF;
+
+END //
+DELIMITER ; 
 
 
 
