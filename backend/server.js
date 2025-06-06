@@ -171,12 +171,24 @@ app.put('/api/products/:id', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
     const productId = req.params.id;
     try {
-        // Use the stored procedure to delete the product
+        // Use the stored procedure to delete tyhe product
         await db.query('CALL delete_product(?)', [productId]);
         res.status(200).json({ message: 'Product deleted successfully' });
     } catch (error) {
         console.error("Error deleting product:", error);
         res.status(500).json({ error: "Failed to delete product" });
+    }
+});
+
+// Route to pay an invoice
+app.put('/api/invoices', async (req, res) => {
+    try {
+        const invoiceId = req.body.id;
+        await db.query('CALL pay_invoice(?)', [invoiceId]);
+        res.status(200).json({ message: 'Invoice paid successfully' });
+    } catch (error) {
+        console.error("Error paying invoice:", error);
+        res.status(500).json({ error: "Failed to pay invoice" });
     }
 });
 

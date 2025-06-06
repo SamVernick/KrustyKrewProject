@@ -182,6 +182,7 @@ function ProductsPage() {
                         value={updateProductId}
                         onChange={(e) => setUpdateProductId(e.target.value)}
                         required>
+                        <option value="">Select a Product</option>
                         {products.map(product => (
                             <option key={product.id} value={product.id}>
                                 {product.productName}
