@@ -12,7 +12,7 @@ const app = express();
 const cors = require('cors');
 
 // Get port from environment variables with fallback
-const PORT = process.env.BACKEND_PORT;
+const PORT = 48015;
 
 // If on FLIP or classwork, use cors() middleware to allow cross-origin requests from the frontend with your port number:
 // EX (local): http://localhost:5173
@@ -229,7 +229,7 @@ app.delete('/api/customers/:id', async (req, res) => {
     } catch (error) {
         console.error("Error deleting customer:", error);
         res.status(500).json({ error: "Failed to delete customer" });
-    }
+``    }
 });
 
 // Route to reset the database schema and sample data
