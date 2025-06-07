@@ -132,7 +132,17 @@ app.get('/api/invoices', async (req, res) => {
     }
 });
 
-
+// Route to pay an invoice
+app.put('/api/invoices', async (req, res) => {
+    try {
+        const invoiceId = req.body.id;
+        await db.query('CALL pay_invoice(?)', [invoiceId]);
+        res.status(200).json({ message: 'Invoice paid successfully' });
+    } catch (error) {
+        console.error("Error paying invoice:", error);
+        res.status(500).json({ error: "Failed to pay invoice" });
+    }
+});
 
 //Route to create a order detail
 app.post('/api/orderdetails', async (req, res) => {
@@ -223,7 +233,6 @@ app.put('/api/products/:id', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
     const productId = req.params.id;
     try {
-        // Use the stored procedure to delete tyhe product
         await db.query('CALL delete_product(?)', [productId]);
         res.status(200).json({ message: 'Product deleted successfully' });
     } catch (error) {
@@ -232,15 +241,44 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
-// Route to pay an invoice
-app.put('/api/invoices', async (req, res) => {
+// Route to create a customer
+app.post('/api/customers', async (req, res) => {
     try {
-        const invoiceId = req.body.id;
-        await db.query('CALL pay_invoice(?)', [invoiceId]);
-        res.status(200).json({ message: 'Invoice paid successfully' });
+        const firstName = req.body.firstName;
+        const lastName = req.body.lastName;
+
+        await db.query('CALL create_customer(?, ?, @new_customerID)', [firstName, lastName]);
+        res.status(200).json({ message: 'Customer created successfully' });
     } catch (error) {
-        console.error("Error paying invoice:", error);
-        res.status(500).json({ error: "Failed to pay invoice" });
+        console.error("Error creating customer:", error);
+        res.status(500).json({ error: "Failed to create customer" });
+    }
+});
+
+// Route to update a customer
+app.put('/api/customers/:id', async (req, res) => {
+    try {
+        const customerId = req.params.id;
+        const firstName = req.body.firstName;
+        const lastName = req.body.lastName;
+
+        await db.query('CALL update_customer(?, ?, ?)', [customerId, firstName, lastName]);
+        res.status(200).json({ message: 'Customer updated successfully' });
+    } catch (error) {
+        console.error("Error updating customer:", error);
+        res.status(500).json({ error: "Failed to update customer" });
+    }
+});
+
+// Route to delete a customer
+app.delete('/api/customers/:id', async (req, res) => {
+    try {
+        const customerId = req.params.id;
+        await db.query('CALL delete_customer(?)', [customerId]);
+        res.status(200).json({ message: 'Customer deleted successfully' });
+    } catch (error) {
+        console.error("Error deleting customer:", error);
+        res.status(500).json({ error: "Failed to delete customer" });
     }
 });
 
