@@ -109,7 +109,7 @@ app.get('/api/customers', async (req, res) => {
     }
 });
 
-//Rout to get all Invoices
+//Route to get all Invoices
 app.get('/api/invoices', async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -132,66 +132,66 @@ app.get('/api/invoices', async (req, res) => {
     }
 });
 
-// Route to pay an invoice
-app.put('/api/invoices', async (req, res) => {
-    try {
-        const invoiceId = req.body.id;
-        await db.query('CALL pay_invoice(?)', [invoiceId]);
-        res.status(200).json({ message: 'Invoice paid successfully' });
-    } catch (error) {
-        console.error("Error paying invoice:", error);
-        res.status(500).json({ error: "Failed to pay invoice" });
-    }
-});
+// // Route to pay an invoice
+// app.put('/api/invoices', async (req, res) => {
+//     try {
+//         const invoiceId = req.body.id;
+//         await db.query('CALL pay_invoice(?)', [invoiceId]);
+//         res.status(200).json({ message: 'Invoice paid successfully' });
+//     } catch (error) {
+//         console.error("Error paying invoice:", error);
+//         res.status(500).json({ error: "Failed to pay invoice" });
+//     }
+// });
 
-//Route to create a order detail
-app.post('/api/orderdetails', async (req, res) => {
-    try {
-        const productId = req.body.productName;
-        const orderId = req.body.orderID;
-        const order_quantity = req.body.orderQuantity;
-        if(isNaN(parseInt(order_quantity))) {
-            throw Error ("Quantity is not a number.");
-        }
-        // Use the stored procedure to update the product
-        await db.query('CALL create_order_details(?, ?, ?, @new_orderDetailsID)', [productId, orderId, order_quantity]);
-        res.status(200).json({ message: 'Order Detail created successfully' });
-    } catch (error) {
-        console.error("Error creating order detail:", error);
-        res.status(500).json({ error: "Failed to create order detail" });
-    }
-});
+// //Route to create a order detail
+// app.post('/api/orderdetails', async (req, res) => {
+//     try {
+//         const productId = req.body.productName;
+//         const orderId = req.body.orderID;
+//         const order_quantity = req.body.orderQuantity;
+//         if(isNaN(parseInt(order_quantity))) {
+//             throw Error ("Quantity is not a number.");
+//         }
+//         // Use the stored procedure to update the product
+//         await db.query('CALL create_order_details(?, ?, ?, @new_orderDetailsID)', [productId, orderId, order_quantity]);
+//         res.status(200).json({ message: 'Order Detail created successfully' });
+//     } catch (error) {
+//         console.error("Error creating order detail:", error);
+//         res.status(500).json({ error: "Failed to create order detail" });
+//     }
+// });
 
-// Route to update a order detail
-app.put('/api/orderdetails/:id', async (req, res) => {
-    try {
-        const orderDetailId = req.params.id;
-        const productId = req.body.productName;
-        const order_quantity = req.body.orderQuantity;
-        if(isNaN(parseInt(order_quantity))) {
-            throw Error ("Order quantity is not a number.");
-        }
-        // Use the stored procedure to update the product
-        await db.query('CALL update_order_details(?, ?, ?, @new_price)', [orderDetailId, productId, order_quantity]);
-        res.status(200).json({ message: 'Order detail updated successfully' });
-    } catch (error) {
-        console.error("Error updating order detail:", error);
-        res.status(500).json({ error: "Failed to update order detail" });
-    }
-});
+// // Route to update a order detail
+// app.put('/api/orderdetails/:id', async (req, res) => {
+//     try {
+//         const orderDetailId = req.params.id;
+//         const productId = req.body.productName;
+//         const order_quantity = req.body.orderQuantity;
+//         if(isNaN(parseInt(order_quantity))) {
+//             throw Error ("Order quantity is not a number.");
+//         }
+//         // Use the stored procedure to update the product
+//         await db.query('CALL update_order_details(?, ?, ?, @new_price)', [orderDetailId, productId, order_quantity]);
+//         res.status(200).json({ message: 'Order detail updated successfully' });
+//     } catch (error) {
+//         console.error("Error updating order detail:", error);
+//         res.status(500).json({ error: "Failed to update order detail" });
+//     }
+// });
 
-// Route to delete a order detail
-app.delete('/api/orderdetails/:id', async (req, res) => {
-    const orderDetailId = req.params.id;
-    try {
-        // Use the stored procedure to delete tyhe product
-        await db.query('CALL delete_order_details(?)', [orderDetailId]);
-        res.status(200).json({ message: 'Product deleted successfully' });
-    } catch (error) {
-        console.error("Error deleting product:", error);
-        res.status(500).json({ error: "Failed to delete product" });
-    }
-});
+// // Route to delete a order detail
+// app.delete('/api/orderdetails/:id', async (req, res) => {
+//     const orderDetailId = req.params.id;
+//     try {
+//         // Use the stored procedure to delete tyhe product
+//         await db.query('CALL delete_order_details(?)', [orderDetailId]);
+//         res.status(200).json({ message: 'Product deleted successfully' });
+//     } catch (error) {
+//         console.error("Error deleting product:", error);
+//         res.status(500).json({ error: "Failed to delete product" });
+//     }
+// });
 
 
 //Route to create a product
@@ -241,46 +241,46 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
-// Route to create a customer
-app.post('/api/customers', async (req, res) => {
-    try {
-        const firstName = req.body.firstName;
-        const lastName = req.body.lastName;
+// // Route to create a customer
+// app.post('/api/customers', async (req, res) => {
+//     try {
+//         const firstName = req.body.firstName;
+//         const lastName = req.body.lastName;
 
-        await db.query('CALL create_customer(?, ?, @new_customerID)', [firstName, lastName]);
-        res.status(200).json({ message: 'Customer created successfully' });
-    } catch (error) {
-        console.error("Error creating customer:", error);
-        res.status(500).json({ error: "Failed to create customer" });
-    }
-});
+//         await db.query('CALL create_customer(?, ?, @new_customerID)', [firstName, lastName]);
+//         res.status(200).json({ message: 'Customer created successfully' });
+//     } catch (error) {
+//         console.error("Error creating customer:", error);
+//         res.status(500).json({ error: "Failed to create customer" });
+//     }
+// });
 
-// Route to update a customer
-app.put('/api/customers/:id', async (req, res) => {
-    try {
-        const customerId = req.params.id;
-        const firstName = req.body.firstName;
-        const lastName = req.body.lastName;
+// // Route to update a customer
+// app.put('/api/customers/:id', async (req, res) => {
+//     try {
+//         const customerId = req.params.id;
+//         const firstName = req.body.firstName;
+//         const lastName = req.body.lastName;
 
-        await db.query('CALL update_customer(?, ?, ?)', [customerId, firstName, lastName]);
-        res.status(200).json({ message: 'Customer updated successfully' });
-    } catch (error) {
-        console.error("Error updating customer:", error);
-        res.status(500).json({ error: "Failed to update customer" });
-    }
-});
+//         await db.query('CALL update_customer(?, ?, ?)', [customerId, firstName, lastName]);
+//         res.status(200).json({ message: 'Customer updated successfully' });
+//     } catch (error) {
+//         console.error("Error updating customer:", error);
+//         res.status(500).json({ error: "Failed to update customer" });
+//     }
+// });
 
-// Route to delete a customer
-app.delete('/api/customers/:id', async (req, res) => {
-    try {
-        const customerId = req.params.id;
-        await db.query('CALL delete_customer(?)', [customerId]);
-        res.status(200).json({ message: 'Customer deleted successfully' });
-    } catch (error) {
-        console.error("Error deleting customer:", error);
-        res.status(500).json({ error: "Failed to delete customer" });
-    }
-});
+// // Route to delete a customer
+// app.delete('/api/customers/:id', async (req, res) => {
+//     try {
+//         const customerId = req.params.id;
+//         await db.query('CALL delete_customer(?)', [customerId]);
+//         res.status(200).json({ message: 'Customer deleted successfully' });
+//     } catch (error) {
+//         console.error("Error deleting customer:", error);
+//         res.status(500).json({ error: "Failed to delete customer" });
+//     }
+// });
 
 // Route to reset the database schema and sample data
 app.post('/api/reset', async (req, res) => {
