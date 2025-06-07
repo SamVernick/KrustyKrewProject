@@ -32,7 +32,6 @@
 -- ORDER DETAILS PROCEDURES START BELOW:
 -- TODO!! Add a trigger for each time update_order_details is called, it updates the price column in orderdetails and in orders
 -- TODO!! Get rid of order.id/ o_id in update order details
--- TODO!! Get rid of of p_id and o_id for delete order details, ONLY use od_id
 
 
 -- Drops the create_order_details procedure
@@ -89,8 +88,8 @@ DELIMITER //
 CREATE PROCEDURE update_order_details(
     IN od_id INT, -- order details ID
     IN p_id INT,
-    IN o_id INT, -- order ID
-    IN new_quantity INT
+    IN new_quantity INT,
+    OUT new_price decimal(6,2)
 )
 COMMENT 'Updates the quantity of a product that is already in the Order Details table'
 proc_end: BEGIN
@@ -105,8 +104,8 @@ proc_end: BEGIN
     START TRANSACTION;
 
     -- Checks if the all the ids exists currently in the OrderDetails table for that specific order
-    IF EXISTS (SELECT OrderDetails.id, Orders.id, Products.id FROM OrderDetails INNER JOIN Products ON OrderDetails.productID = Products.id INNER JOIN Orders ON OrderDetails.orderID = Orders.id WHERE OrderDetails.id = od_id AND Products.id = p_id AND Orders.id = o_id) THEN 
-        UPDATE OrderDetails SET orderQuantity = new_quantity WHERE id = od_id AND productID = p_id AND orderID = o_id;
+    IF EXISTS (SELECT OrderDetails.id, Products.id FROM OrderDetails INNER JOIN Products ON OrderDetails.productID = Products.id WHERE OrderDetails.id = od_id AND Products.id = p_id) THEN 
+        UPDATE OrderDetails SET orderQuantity = new_quantity, priceTotal = ((SELECT Products.price FROM Products WHERE Products.id = p_id)*new_quantity) WHERE id = od_id AND productID = p_id;
         SELECT 'Updated OrderDetails successfully!' AS message;
     ELSE
         -- if the id couldn't be found rollsback
@@ -125,9 +124,7 @@ DELIMITER //
 
 -- Makes the delete_order_details procedure
 CREATE PROCEDURE delete_order_details(
-    IN od_id INT,   -- order details ID
-    IN p_id INT,
-    IN o_id INT    -- order ID
+    IN od_id INT   -- order details ID
 )
 COMMENT 'Deletes a product from the OrderDetails table, which is part of a certain order number'
 BEGIN 
@@ -141,10 +138,8 @@ BEGIN
 
     START TRANSACTION;
 
-    -- Deletes the product from the order number matching the product id, order id, and order details id passed in
-    IF EXISTS(SELECT OrderDetails.id, Orders.id, Products.id FROM OrderDetails INNER JOIN Products ON OrderDetails.productID = Products.id INNER JOIN Orders ON OrderDetails.orderID = Orders.id WHERE OrderDetails.id = od_id AND Products.id = p_id AND Orders.id = o_id) THEN 
-        DELETE FROM OrderDetails WHERE OrderDetails.id = od_id AND productID = p_id AND orderID = o_id;
-    END IF;
+    -- Deletes the product from the order number matching the order details id passed in
+   DELETE FROM OrderDetails WHERE OrderDetails.id = od_id;
     -- If the deletion fails then it prints out the error message
     IF ROW_COUNT() = 0 THEN 
         ROLLBACK;
@@ -165,8 +160,6 @@ DELIMITER ;
 
 
 -- PRODUCTS SQL PROCEDURES START BELOW:
--- TODO add a trigger for each time product price is updated, it updates the orders dropdown since then but keeps the invoices items the same
-
 
 -- Drops the create_product procedure
 DROP PROCEDURE IF EXISTS create_product;
