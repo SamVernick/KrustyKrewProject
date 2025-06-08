@@ -78,7 +78,7 @@ function App() {
               <h1 className="text-4xl font-bold text-black mt-20 ml-18">Click Enter To Begin!</h1>
             <button 
               onClick={(e) => handleEnterClick(e)}
-              className="absolute bottom-15 right-72 w-32 h-24 opacity-0 cursor-pointer rounded-full transition-opacity border-2 border-white text-white font-bold"
+              className="absolute bottom-5 right-20 w-150 h-100 opacity-0 cursor-pointer rounded-full transition-opacity border-2 border-white text-white font-bold"
               aria-label="Enter the Krusty Krab"
             >
               Enter
