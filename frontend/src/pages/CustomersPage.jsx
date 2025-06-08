@@ -114,6 +114,17 @@ function CustomersPage() {
 
         try {
             setIsLoading(true);
+            const response = await fetch(`${API_URL}/api/customers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    firstName : newCustomerFName,
+                    lastName : newCustomerLName
+                })
+            });
+            if(!response.ok){
+                throw new error('Failed to create customer');
+            }
             setMessage('Customer created successfully!');
             fetchCustomers();
         } catch (error) {
@@ -164,7 +175,11 @@ function CustomersPage() {
             <form className="border-2 border-black rounded-lg p-4 space-y-4" onSubmit={handleUpdate}>
                 <div className="space-y-2">
                     <label className="text-lg font-medium text-black">Choose Customer to Update: </label>
-                    <select className="border border-black rounded-lg p-2 bg-cyan-100">
+                    <select className="border border-black rounded-lg p-2 bg-cyan-100"
+                        value={updateCustomerId}
+                        onChange={(e) => setUpdateCustomerId(e.target.value)}
+                        required
+                    >
                         <option value="">Select a Customer</option>
                         {customers.map(customer => (
                             <option key={customer.id} value={customer.id}>
@@ -180,7 +195,7 @@ function CustomersPage() {
                         <input type="text" 
                             className="border border-black rounded-lg p-2 w-full bg-cyan-100"
                             value={updateCustomerFName}
-                            onChange={(e) => setNewCustomerFName(e.target.value)}
+                            onChange={(e) => setUpdateCustomerFName(e.target.value)}
                             required
                         />
                     </div>
@@ -190,7 +205,7 @@ function CustomersPage() {
                         <input type="text" 
                             className="border border-black rounded-lg p-2 w-full bg-cyan-100"
                             value={updateCustomerLName}
-                            onChange={(e) => setNewCustomerLName(e.target.value)}
+                            onChange={(e) => setUpdateCustomerLName(e.target.value)}
                             required
                         />
                     </div>
