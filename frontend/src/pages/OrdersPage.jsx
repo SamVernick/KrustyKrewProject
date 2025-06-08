@@ -77,8 +77,7 @@ function OrdersPage() {
         }
     }, [resetTriggered, resetMessage, resetSuccess]);
 
-    useEffect(() => {
-        const fetchData = async () => {
+    const fetchData = async () => {
             setIsLoading(true);
             try {
                 await Promise.all([fetchOrders(), fetchProducts(), fetchCustomers()]);
@@ -88,7 +87,8 @@ function OrdersPage() {
                 setIsLoading(false);
             }
         };
-        
+
+    useEffect(() => {
         fetchData();
     }, []);
 
@@ -114,7 +114,7 @@ function OrdersPage() {
                 throw new error('Failed to create order');
             }
             setMessage('Order created successfully!');
-            setIsLoading(false);
+            fetchData();
         } catch (error) {
             console.error('Error creating order:', error);
             setMessage('Failed to create order. Please try again.');
@@ -138,7 +138,7 @@ function OrdersPage() {
                 throw new Error('Failed to delete order');
             }
             setMessage('Order deleted successfully!');
-            fetchOrders();
+            fetchData();
         } catch (error) {
             console.error('Error deleting order:', error);
             setMessage('Failed to delete product. Please try again.');

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MdAdd, MdRemove } from 'react-icons/md';
 	
 function SelectQuantity() {
-    const [count, setCount] = useState(0);
+    const [count, setCount] = useState(1);
     const increment = (e) => {
         // Prevent default behavior and stop propagation
         e.preventDefault();
@@ -18,7 +18,7 @@ function SelectQuantity() {
         e.preventDefault();
         e.stopPropagation();
         
-        if(count > 0) {
+        if(count > 1) {
             setCount(count - 1);
         }
     };

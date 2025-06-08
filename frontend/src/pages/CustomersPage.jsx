@@ -114,17 +114,6 @@ function CustomersPage() {
 
         try {
             setIsLoading(true);
-            const response = await fetch(`${API_URL}/api/customers/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    firstName: newCustomerFName,
-                    lastName: newCustomerLName
-                })
-            });
-            if(!response.ok){
-                throw new Error('Failed to create customer');
-            }
             setMessage('Customer created successfully!');
             fetchCustomers();
         } catch (error) {
