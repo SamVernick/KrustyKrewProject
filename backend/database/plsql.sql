@@ -6,6 +6,10 @@
 
 
 -- CUSTOMER PROCEDURES START BELOW:
+-- select * from Customers;
+-- call create_customer("Squidward", "Tentacles", @new_id);
+-- call update_customers(6, "Squilliam", "Fancyton");
+-- call delete_customers(6);
 
 DROP PROCEDURE IF EXISTS create_customer;
 DELIMITER //
@@ -44,11 +48,11 @@ END //
 DELIMITER ;
 
 
--- Drops the update_customers procedure
-DROP PROCEDURE IF EXISTS update_customers;
+-- Drops the update_customer procedure
+DROP PROCEDURE IF EXISTS update_customer;
 DELIMITER //
 
--- Creates update_customers procedure
+-- Creates update_customer procedure
 CREATE PROCEDURE update_customer(
     IN c_id INT,
     IN c_fname varchar(45),
@@ -80,11 +84,11 @@ END //
 DELIMITER ;
 
 
--- Deletes the delete_customers procedure
-DROP PROCEDURE IF EXISTS delete_customers;
+-- Deletes the delete_customer procedure
+DROP PROCEDURE IF EXISTS delete_customer;
 DELIMITER //
 
--- Makes the delete_customers procedure
+-- Makes the delete_customer procedure
 CREATE PROCEDURE delete_customer(
     IN c_id INT
 )
