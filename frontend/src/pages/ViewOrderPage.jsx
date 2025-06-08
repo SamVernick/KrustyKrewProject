@@ -1,4 +1,3 @@
-import { getDefaultAutoSelectFamily } from "net";
 import OrderDetailsTable from "../components/OrderDetailsTable";
 import SelectQuantity from "../components/SelectQuantity";
 import { useReset } from '../context/ResetContext';
@@ -11,14 +10,11 @@ function OrderDetailsPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [addOrderId, setAddOrderId] = useState("");
     const [productIDToAdd, setProductIDToAdd] = useState("")
-    const [productIDToUpdate, setProductIDToUpdate] = useState("");
     const [addQuantity, setAddQuantity] = useState(1);
     const [updateQuantity, setUpdateQuantity] = useState(1);
     const [availableProducts, setAvailableProducts] = useState([]);
     const [updateOrderDetailId, setUpdateOrderDetailId] = useState("");
     const [deleteOrderDetailId, setDeleteOrderDetailId] = useState("");
-    const [orderProductsForUpdate, setOrderProductsForUpdate] = useState([]);
-    const [selectedOrderForUpdate, setSelectedOrderForUpdate] = useState(null);
     const [products, setProducts] = useState([]);
     const [message, setMessage] = useState("");
 
@@ -100,27 +96,6 @@ function OrderDetailsPage() {
         }
     }, [addOrderId, products, orderDetails]);
     
-    useEffect(() => {
-        if (updateOrderDetailId) {
-            const selectedDetail = orderDetails.find(
-            detail => detail.id === parseInt(updateOrderDetailId)
-            );
-            
-            if (selectedDetail) {
-            setSelectedOrderForUpdate(selectedDetail.orderID);
-            
-            const productsInSelectedOrder = orderDetails
-                .filter(detail => detail.orderID === selectedDetail.orderID)
-                .map(detail => ({
-                id: detail.id,
-                productID: detail.productID,
-                productName: detail.productName
-                }));
-            
-            setOrderProductsForUpdate(productsInSelectedOrder);
-            }
-        }
-    }, [updateOrderDetailId, orderDetails]);
 
     const handleAdd = async (e) => {
         e.preventDefault();
@@ -153,20 +128,18 @@ function OrderDetailsPage() {
     
     const handleUpdate = async (e) => {
         e.preventDefault();
-        if(!updateOrderDetailId || !productIDToUpdate || !selectedOrderForUpdate){
-            setMessage("Please select a customer to update");
+        if(!updateOrderDetailId){
+            setMessage("Please select an order detail and amount to update");
             return;
         }
 
         try {
             setIsLoading(true);
-            const response = await fetch(`${API_URL}/api/orderdetail/${updateOrderDetailId}`, {
+            const response = await fetch(`${API_URL}/api/orderdetails/${updateOrderDetailId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     id: updateOrderDetailId,
-                    oid: selectedOrderForUpdate,
-                    pid: productIDToUpdate,
                     amount: updateQuantity
                 })
             });
@@ -281,28 +254,6 @@ function OrderDetailsPage() {
                                 </option>
                             ))}
                         </select>
-                    </div>
-                    
-                    <div className="flex-1 space-y-2">
-                        <label className="text-lg font-medium text-black">Product Name:</label>
-                        <select 
-                            className="border border-black rounded-lg p-2 w-full bg-cyan-100"
-                            disabled={!updateOrderDetailId}
-                            value={productIDToUpdate}
-                            onChange={(e) => setProductIDToUpdate(e.target.value)}
-                        >
-                            <option value="">Select a Product</option>
-                            {orderProductsForUpdate.map(product => (
-                            <option key={product.id} value={product.id}>
-                                {product.productName} (Product ID: {product.id})
-                            </option>
-                            ))}
-                        </select>
-                        {orderProductsForUpdate.length === 0 && updateOrderDetailId && (
-                            <p className="text-sm text-amber-600 mt-1">
-                            No products found in this order
-                            </p>
-                        )}
                     </div>
 
                     <div className="space-y-2">

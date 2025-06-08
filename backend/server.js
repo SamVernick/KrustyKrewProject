@@ -296,6 +296,59 @@ app.post('/api/orders', async (req, res) => {
     }
 });
 
+// Route to delete an order
+app.delete('/api/orders/:id', async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        await db.query('CALL delete_order(?)', [orderId]);
+        res.status(200).json({ message: 'Order deleted successfully' });
+    } catch (error) {
+        console.error("Error deleting order:", error);
+        res.status(500).json({ error: "Failed to delete order" });
+    }
+});
+
+// Route to add an order detail
+app.post('/api/orders/:id/orderdetails', async (req, res) => {
+    try {
+        const oid = req.params.oid;
+        const pid = req.body.pid;
+        const amount = req.body.amount;
+
+        await db.query('CALL add_order_detail(?, ?, ?)', [oid, pid, amount]);
+        res.status(200).json({ message: 'Order detail added successfully' });
+    } catch (error) {
+        console.error("Error adding order detail:", error);
+        res.status(500).json({ error: "Failed to add order detail" });
+    }
+});
+
+// Route to update an order detail
+app.put('/api/orderdetails/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const amount = req.body.amount;
+
+        await db.query('CALL update_order_detail(?, ?)', [id, amount]);
+        res.status(200).json({ message: 'Order detail updated successfully' });
+    } catch (error) {
+        console.error("Error updating order detail:", error);
+        res.status(500).json({ error: "Failed to update order detail" });
+    }
+});
+
+// Route to delete an order detail
+app.delete('/api/orderdetails/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        await db.query('CALL delete_order_detail(?)', [id]);
+        res.status(200).json({ message: 'Order detail deleted successfully' });
+    } catch (error) {
+        console.error("Error deleting order detail:", error);
+        res.status(500).json({ error: "Failed to delete order detail" });
+    }
+});
+
 // Route to reset the database schema and sample data
 app.post('/api/reset', async (req, res) => {
     try {
