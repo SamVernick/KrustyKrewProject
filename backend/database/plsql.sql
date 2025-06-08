@@ -1,7 +1,49 @@
 -- INVOICES PROCEDURES START BELOW:
 Select * from Invoices;
 Select * from Customers;
+Select * from Orders;
+call create_invoice(8, 3, @new_i_id);
 call pay_invoice(2);
+
+
+DROP PROCEDURE IF EXISTS create_invoice;
+DELIMITER //
+
+CREATE PROCEDURE create_invoice(
+    IN o_id INT,
+    IN c_id INT,
+    OUT new_invoiceID INT
+)
+COMMENT "Adds a new invoice to Invoices table"
+BEGIN
+    DECLARE i_id int;
+    DECLARE i_total decimal(6,2);
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN 
+        ROLLBACK;
+        SET new_invoiceID = -99;
+    END;
+
+    START TRANSACTION;
+
+    SELECT orderTotal INTO i_total FROM Orders WHERE id = o_id; 
+    INSERT INTO `Invoices` (orderID, customerID, total, saleDate)
+    VALUES (o_id, c_id, i_total, CURDATE());
+
+    IF ROW_COUNT() = 0 THEN 
+        ROLLBACK;
+        SELECT 'Creation error' AS message;
+    ELSE 
+        -- If the creation was a success it commits the changes and sets the message as being successful
+        SET i_id = LAST_INSERT_ID();
+        SET new_invoiceID = i_id;
+        COMMIT;
+        SELECT 'Invoice added to Invoices table!' AS message;
+    END IF;
+
+END //
+DELIMITER ;
+
 
 DROP PROCEDURE IF EXISTS pay_invoice;
 DELIMITER //
@@ -57,13 +99,13 @@ DELIMITER ;
 
 -- INVOICES HAVE ENDED
 
-SELECT 'Made it to trigger!' AS message;
+
 
 -- CUSTOMER PROCEDURES START BELOW:
--- select * from Customers;
--- call create_customer("Squidward", "Tentacles", @new_id);
--- call update_customers(6, "Squilliam", "Fancyton");
--- call delete_customers(6);
+select * from Customers;
+call create_customer("Squidward", "Tentacles", @new_id);
+call update_customers(6, "Squilliam", "Fancyton");
+call delete_customers(6);
 
 DROP PROCEDURE IF EXISTS create_customer;
 DELIMITER //
@@ -222,7 +264,9 @@ DELIMITER ;
 
 -- ORDER PROCEDURES START BELOW:
 select * from Orders;
+select * from OrderDetails;
 select * from Products;
+select * from Invoices;
 call create_order(1, 3, 2, @new_id);
 
 -- Drops the create_order procedure
@@ -261,6 +305,8 @@ BEGIN
                 SET new_order_id = o_id;
                 COMMIT;
                 SELECT 'Order added to Orders table!' AS message;
+                CALL create_order_details(p_id, o_id, quantity, @new_od_id);
+                CALL create_invoice(o_id, c_id, @new_i_id);
             END IF;
         ELSE
             ROLLBACK;
@@ -318,8 +364,11 @@ DELIMITER ;
 -- ORDER DETAILS PROCEDURES START BELOW:
 -- TODO!! Add a trigger for each time update_order_details is called, it updates the price column in orderdetails and in orders
 
+select * from Orders;
+select * from OrderDetails;
+select * from Products;
+call create_order_details(3, 2, 5, @new_od_id);
 
--- Drops the create_order_details procedure
 DROP PROCEDURE IF EXISTS create_order_details;
 DELIMITER //
 
@@ -342,9 +391,12 @@ BEGIN
     END;
 
     START TRANSACTION;
-    IF EXISTS(SELECT Orders.id, Products.id FROM OrderDetails INNER JOIN Products ON OrderDetails.productID = Products.id INNER JOIN Orders ON OrderDetails.orderID = Orders.id WHERE Products.id = p_id AND Orders.id = o_id) THEN
+    -- SELECT CONCAT('Order id is: ', o_id) AS message;
+    -- SELECT CONCAT('Product id is: ', p_id) AS message;
+    IF EXISTS(SELECT 1 FROM Products JOIN Orders WHERE Products.id = p_id AND Orders.id = o_id) THEN
+        SELECT price INTO t_price FROM Products WHERE id = p_id;
         INSERT INTO `OrderDetails` (productID, orderID, orderQuantity, priceTotal)
-        VALUES (p_id, o_id, quantity, ((SELECT Products.price FROM Products WHERE Products.id = p_id)*quantity));
+        VALUES (p_id, o_id, quantity, (t_price * quantity));
 
         IF ROW_COUNT() = 0 THEN 
             ROLLBACK;
