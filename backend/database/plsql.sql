@@ -1,12 +1,13 @@
 -- INVOICES PROCEDURES START BELOW:
 
 -- Helpful function calls:
--- Select * from Invoices;
--- Select * from Customers;
--- Select * from Orders;
--- call create_invoice(8, 3, @new_i_id);
--- call update_invoice_totals(1, 1);
--- call pay_invoice(2);
+Select * from Invoices;
+Select * from Customers;
+Select * from Orders;
+Select * from OrderDetails;
+call pay_invoice(2);
+call create_invoice(8, 3, @new_i_id);
+call update_invoice_totals(1, 1);
 
 
 DROP PROCEDURE IF EXISTS create_invoice;
@@ -94,6 +95,7 @@ CREATE PROCEDURE pay_invoice(
 COMMENT 'Updates the invoice setting it to be paid'
 proc_end: BEGIN
     DECLARE c_id INT;
+    DECLARE o_id INT;
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     -- Makes the error handler message
     BEGIN
@@ -108,11 +110,13 @@ proc_end: BEGIN
         UPDATE Invoices SET paid = 1 WHERE id = i_id;
         SELECT 'Updated Invoices successfully!' AS message;
         SELECT customerID INTO c_id FROM Invoices WHERE id = i_id;
-        IF (c_id IS NOT NULL) THEN 
+        SELECT orderID INTO o_id FROM Invoices WHERE id = i_id;
+        IF (c_id IS NOT NULL AND o_id IS NOT NULL) THEN 
             CALL update_customer_totals(c_id);
+            CALL delete_order(o_id);
         ELSE 
             ROLLBACK;
-            SELECT 'Error: Customer id does not exist for that Invoice Number try again.' AS message;
+            SELECT 'Error: Customer/Order id does not exist for that Invoice Number try again.' AS message;
             LEAVE proc_end;
         END IF;
     ELSE
@@ -132,10 +136,10 @@ DELIMITER ;
 -- CUSTOMER PROCEDURES START BELOW:
 
 -- Helpful function calls:
--- select * from Customers;
--- call create_customer("Squidward", "Tentacles", @new_id);
--- call update_customers(6, "Squilliam", "Fancyton");
--- call delete_customers(6);
+select * from Customers;
+call create_customer("Squidward", "Tentacles", @new_id);
+call update_customers(6, "Squilliam", "Fancyton");
+call delete_customers(6);
 
 DROP PROCEDURE IF EXISTS create_customer;
 DELIMITER //
@@ -267,7 +271,7 @@ proc_end: BEGIN
 
     -- Checks if the id passed in exists
     IF EXISTS (SELECT 1 FROM Customers WHERE id = c_id) THEN 
-        UPDATE Customers SET moneySpent = (SELECT SUM(total) FROM Invoices WHERE customerID = c_id AND paid =  ) WHERE id = c_id;
+        UPDATE Customers SET moneySpent = (SELECT SUM(total) FROM Invoices WHERE customerID = c_id AND paid =  1) WHERE id = c_id;
         SELECT 'Updated Customers total successfully!' AS message;
     ELSE
         -- if the id couldn't be found rollsback
@@ -288,12 +292,12 @@ DELIMITER ;
 -- ORDER PROCEDURES START BELOW:
 
 -- Helpful function calls:
--- select * from Orders;
--- select * from OrderDetails;
--- select * from Products;
--- select * from Invoices;
--- call create_order(1, 3, 2, @new_id);
--- call update_order_total(1);
+select * from Orders;
+select * from OrderDetails;
+select * from Products;
+select * from Invoices;
+call create_order(5, 4, 2, @new_id);
+call update_order_total(1);
 
 -- Drops the create_order procedure
 DROP PROCEDURE IF EXISTS create_order;
@@ -317,7 +321,7 @@ BEGIN
     END;
 
     START TRANSACTION;
-    IF EXISTS (SELECT 1 FROM Orders INNER JOIN Customers ON Orders.customerID = Customers.id WHERE Customers.id = c_id) THEN
+    IF EXISTS (SELECT 1 FROM Customers WHERE id = c_id) THEN
         IF EXISTS (SELECT 1 FROM Products WHERE id = p_id) THEN
             INSERT INTO `Orders` (customerID, orderTotal)
             VALUES (c_id, ((SELECT Products.price FROM Products WHERE Products.id = p_id)*quantity));
@@ -331,8 +335,8 @@ BEGIN
                 SET new_order_id = o_id;
                 COMMIT;
                 SELECT 'Order added to Orders table!' AS message;
-                CALL create_order_details(p_id, o_id, quantity, @new_od_id);
                 CALL create_invoice(o_id, c_id, @new_i_id);
+                CALL create_order_details(p_id, o_id, quantity, @new_od_id);
             END IF;
         ELSE
             ROLLBACK;
