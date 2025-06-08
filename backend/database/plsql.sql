@@ -434,6 +434,7 @@ select * from Products;
 call create_order_details(4, 1, 2, @new_od_id);
 call update_order_details(12, 2, 4, @new_price);
 
+
 DROP PROCEDURE IF EXISTS create_order_details;
 DELIMITER //
 
@@ -554,7 +555,6 @@ BEGIN
 
 END //
 DELIMITER ; 
-
 
 
 -- ORDER DETAILS PROCEDURES HAVE ENDED
