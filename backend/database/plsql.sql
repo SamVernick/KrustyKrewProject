@@ -1,9 +1,12 @@
 -- INVOICES PROCEDURES START BELOW:
-Select * from Invoices;
-Select * from Customers;
-Select * from Orders;
-call create_invoice(8, 3, @new_i_id);
-call pay_invoice(2);
+
+-- Helpful function calls:
+-- Select * from Invoices;
+-- Select * from Customers;
+-- Select * from Orders;
+-- call create_invoice(8, 3, @new_i_id);
+-- call update_invoice_totals(1, 1);
+-- call pay_invoice(2);
 
 
 DROP PROCEDURE IF EXISTS create_invoice;
@@ -43,6 +46,42 @@ BEGIN
 
 END //
 DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS update_invoice_totals;
+DELIMITER //
+
+-- Makes the update_customer_totals procedure
+CREATE PROCEDURE update_invoice_totals(
+    IN i_id INT,
+    IN o_id INT
+)
+COMMENT 'Updates the total for the invoice from the Invoices table'
+proc_end: BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+
+    -- Creates the error handler message
+    BEGIN 
+        ROLLBACK;
+        SELECT 'Update error' AS message;
+    END;
+
+    START TRANSACTION;
+
+    -- Checks if the id passed in exists
+    IF EXISTS (SELECT 1 FROM Invoices WHERE id = i_id) THEN 
+        UPDATE Invoices SET total = (SELECT orderTotal FROM Orders WHERE id = o_id ) WHERE id = i_id;
+        SELECT 'Updated Invoices successfully!' AS message;
+    ELSE
+        -- if the id couldn't be found rollsback
+        ROLLBACK;
+        SELECT 'Error: Invoice id does not exist for that Invoice Number try again.' AS message;
+        LEAVE proc_end;
+    END IF;
+    COMMIT;
+
+END //
+DELIMITER ; 
 
 
 DROP PROCEDURE IF EXISTS pay_invoice;
@@ -86,26 +125,17 @@ proc_end: BEGIN
 END //
 DELIMITER ;
 
--- DROP TRIGGER IF EXISTS trigger_invoice_paid;
--- DELIMITER //
-
--- CREATE TRIGGER trigger_invoice_paid
--- AFTER UPDATE ON Invoices
--- FOR EACH ROW
--- BEGIN
---     CALL update_customer_totals(NEW.customerID);
--- END //
--- DELIMITER ;
-
 -- INVOICES HAVE ENDED
 
 
 
 -- CUSTOMER PROCEDURES START BELOW:
-select * from Customers;
-call create_customer("Squidward", "Tentacles", @new_id);
-call update_customers(6, "Squilliam", "Fancyton");
-call delete_customers(6);
+
+-- Helpful function calls:
+-- select * from Customers;
+-- call create_customer("Squidward", "Tentacles", @new_id);
+-- call update_customers(6, "Squilliam", "Fancyton");
+-- call delete_customers(6);
 
 DROP PROCEDURE IF EXISTS create_customer;
 DELIMITER //
@@ -230,22 +260,15 @@ proc_end: BEGIN
     -- Creates the error handler message
     BEGIN 
         ROLLBACK;
-        SELECT 'Deletion error' AS message;
+        SELECT 'Update error' AS message;
     END;
 
     START TRANSACTION;
-    SELECT CONCAT('Trigger is firing for customer: ', c_id) AS message;
 
     -- Checks if the id passed in exists
     IF EXISTS (SELECT 1 FROM Customers WHERE id = c_id) THEN 
-        UPDATE Customers
-        SET moneySpent = (
-            SELECT SUM(total)
-            FROM Invoices
-            WHERE customerID = c_id AND paid = 1
-        )
-        WHERE id = c_id;
-        SELECT 'Updated Customers successfully!' AS message;
+        UPDATE Customers SET moneySpent = (SELECT SUM(total) FROM Invoices WHERE customerID = c_id AND paid =  ) WHERE id = c_id;
+        SELECT 'Updated Customers total successfully!' AS message;
     ELSE
         -- if the id couldn't be found rollsback
         ROLLBACK;
@@ -263,11 +286,14 @@ DELIMITER ;
 
 
 -- ORDER PROCEDURES START BELOW:
-select * from Orders;
-select * from OrderDetails;
-select * from Products;
-select * from Invoices;
-call create_order(1, 3, 2, @new_id);
+
+-- Helpful function calls:
+-- select * from Orders;
+-- select * from OrderDetails;
+-- select * from Products;
+-- select * from Invoices;
+-- call create_order(1, 3, 2, @new_id);
+-- call update_order_total(1);
 
 -- Drops the create_order procedure
 DROP PROCEDURE IF EXISTS create_order;
@@ -321,6 +347,41 @@ END //
 DELIMITER ;
 
 
+-- Drops the update_order_total procedure
+DROP PROCEDURE IF EXISTS update_order_total;
+DELIMITER //
+
+-- Creates update_order_total procedure
+CREATE PROCEDURE update_order_total(
+    IN o_id INT
+)
+COMMENT 'Updates the total of a order that is already in the Orders table'
+proc_end: BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    -- Makes the error handler message
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error: Could not update Order total!' AS message;
+    END;
+
+    START TRANSACTION;
+
+    -- Checks if the all the ids exists currently in the OrderDetails table for that specific order
+    IF EXISTS (SELECT 1 FROM Orders WHERE id = o_id) THEN 
+        UPDATE Orders SET orderTotal = (SELECT SUM(priceTotal) FROM OrderDetails WHERE orderID = o_id) WHERE id = o_id;
+        SELECT 'Updated Order total successfully!' AS message;
+        CALL update_invoice_totals( (SELECT id FROM Invoices WHERE orderID = o_id), o_id);
+    ELSE
+        -- if the id couldn't be found rollsback
+        ROLLBACK;
+        SELECT 'Error: Order id does not exist for that Order try again.' AS message;
+        LEAVE proc_end;
+    END IF;
+    COMMIT;
+END //
+DELIMITER ;
+
+
 -- Deletes the delete_order procedure
 DROP PROCEDURE IF EXISTS delete_order;
 DELIMITER //
@@ -362,12 +423,12 @@ DELIMITER ;
 
 
 -- ORDER DETAILS PROCEDURES START BELOW:
--- TODO!! Add a trigger for each time update_order_details is called, it updates the price column in orderdetails and in orders
 
 select * from Orders;
 select * from OrderDetails;
 select * from Products;
-call create_order_details(3, 2, 5, @new_od_id);
+call create_order_details(4, 1, 2, @new_od_id);
+call update_order_details(12, 2, 4, @new_price);
 
 DROP PROCEDURE IF EXISTS create_order_details;
 DELIMITER //
@@ -391,8 +452,6 @@ BEGIN
     END;
 
     START TRANSACTION;
-    -- SELECT CONCAT('Order id is: ', o_id) AS message;
-    -- SELECT CONCAT('Product id is: ', p_id) AS message;
     IF EXISTS(SELECT 1 FROM Products JOIN Orders WHERE Products.id = p_id AND Orders.id = o_id) THEN
         SELECT price INTO t_price FROM Products WHERE id = p_id;
         INSERT INTO `OrderDetails` (productID, orderID, orderQuantity, priceTotal)
@@ -407,6 +466,7 @@ BEGIN
             SET new_order_detail_id = od_id;
             COMMIT;
             SELECT 'Order Detail added to OrderDetails table!' AS message;
+            CALL update_order_total(o_id);
         END IF;
     ELSE
         ROLLBACK;
@@ -444,6 +504,7 @@ proc_end: BEGIN
     IF EXISTS (SELECT OrderDetails.id, Products.id FROM OrderDetails INNER JOIN Products ON OrderDetails.productID = Products.id WHERE OrderDetails.id = od_id AND Products.id = p_id) THEN 
         UPDATE OrderDetails SET orderQuantity = new_quantity, priceTotal = ((SELECT Products.price FROM Products WHERE Products.id = p_id)*new_quantity) WHERE id = od_id AND productID = p_id;
         SELECT 'Updated OrderDetails successfully!' AS message;
+        CALL update_order_total(o_id);
     ELSE
         -- if the id couldn't be found rollsback
         ROLLBACK;
@@ -617,3 +678,9 @@ END //
 DELIMITER ; 
 
 -- PRODUCTS SQL PROCEDURES HAVE ENDED
+
+Select * from Customers;
+Select * from Invoices;
+Select * from Orders;
+Select * from OrderDetails;
+Select * from Products;
