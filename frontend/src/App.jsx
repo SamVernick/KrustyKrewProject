@@ -1,6 +1,6 @@
 import './App.css';
 import { ResetProvider } from './context/ResetContext';
-import { useState, useEffect, useRef } from 'react';  // Added useRef for audio and video
+import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import InvoicePage from './pages/InvoicesPage';
 import OrderPage from './pages/OrdersPage';

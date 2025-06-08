@@ -43,7 +43,8 @@ function InvoicesPage() {
         fetchInvoices();
     }, []);
 
-    const payInvoice = async () => {
+    const payInvoice = async (e) => {
+        e.preventDefault();
         try {
             setIsLoading(true);
             const response = await fetch(`${API_URL}/api/invoices`, {

@@ -123,7 +123,7 @@ app.get('/api/invoices', async (req, res) => {
                 i.paid
             FROM Invoices i
             JOIN Customers c ON i.customerID = c.id
-            JOIN Orders o ON i.orderID = o.id
+            LEFT JOIN Orders o ON i.orderID = o.id
         `);
         res.status(200).json(rows);
     } catch (error) {
@@ -147,9 +147,9 @@ app.put('/api/invoices', async (req, res) => {
 //Route to create a order detail
 app.post('/api/orderdetails', async (req, res) => {
     try {
-        const productId = req.body.productName;
-        const orderId = req.body.orderID;
-        const order_quantity = req.body.orderQuantity;
+        const productId = req.body.pid;
+        const orderId = req.body.oid;
+        const order_quantity = req.body.amount;
         if(isNaN(parseInt(order_quantity))) {
             throw Error ("Quantity is not a number.");
         }
@@ -357,29 +357,29 @@ app.post('/api/reset', async (req, res) => {
         const path = require('path');
         
         const ddlPath = path.join(__dirname, 'database', 'DDL.sql');
-        const plsqlPath = path.join(__dirname, 'database', 'plsql.sql');
         console.log('Reading DDL script...');
         const ddlScript = fs.readFileSync(ddlPath, 'utf8');
-        
-        console.log('Reading PL/SQL script...');
-        const plsqlScript = fs.readFileSync(plsqlPath, 'utf8');
         
         console.log('Executing DDL script...');
         await db.query(ddlScript);
 
-        console.log('Processing PL/SQL script...');
-        // Process the stored procedure differently
-        // Remove DELIMITER statements and combine the procedure
-        const processedProcedure = plsqlScript
-            .replace(/DELIMITER \/\/|DELIMITER ;/g, '')
-            .replace(/END \/\//g, 'END;');
-            
-        
-        console.log('Executing PL/SQL script...');
-        await db.query(processedProcedure);
+        const [customersResult] = await db.query('SELECT COUNT(*) as count FROM Customers');
+        const [productsResult] = await db.query('SELECT COUNT(*) as count FROM Products');
+        const [ordersResult] = await db.query('SELECT COUNT(*) as count FROM Orders');
+        const [invoicesResult] = await db.query('SELECT COUNT(*) as count FROM Invoices');
+        const [orderDetailsResult] = await db.query('SELECT COUNT(*) as count FROM OrderDetails');
+
+        const results = {
+            customers: customersResult[0].count,
+            products: productsResult[0].count,
+            orders: ordersResult[0].count,
+            invoices: invoicesResult[0].count,
+            orderDetails: orderDetailsResult[0].count
+        };
+
+        console.log('Database reset complete with the following counts:', results);
         
         console.log('Database reset complete!');
-        
         res.status(200).json({ message: 'Database reset successfully' });
     } catch (error) {
         console.error("Error resetting database:", error);

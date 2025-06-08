@@ -1,13 +1,13 @@
 -- INVOICES PROCEDURES START BELOW:
 
 -- Helpful function calls:
-Select * from Invoices;
-Select * from Customers;
-Select * from Orders;
-Select * from OrderDetails;
-call pay_invoice(2);
-call create_invoice(8, 3, @new_i_id);
-call update_invoice_totals(1, 1);
+-- Select * from Invoices;
+-- Select * from Customers;
+-- Select * from Orders;
+-- Select * from OrderDetails;
+-- call pay_invoice(2);
+-- call create_invoice(8, 3, @new_i_id);
+-- call update_invoice_totals(1, 1);
 
 
 DROP PROCEDURE IF EXISTS create_invoice;
@@ -136,10 +136,10 @@ DELIMITER ;
 -- CUSTOMER PROCEDURES START BELOW:
 
 -- Helpful function calls:
-select * from Customers;
-call create_customer("Squidward", "Tentacles", @new_id);
-call update_customers(6, "Squilliam", "Fancyton");
-call delete_customers(6);
+-- select * from Customers;
+-- call create_customer("Squidward", "Tentacles", @new_id);
+-- call update_customers(6, "Squilliam", "Fancyton");
+-- call delete_customers(6);
 
 DROP PROCEDURE IF EXISTS create_customer;
 DELIMITER //
@@ -292,12 +292,12 @@ DELIMITER ;
 -- ORDER PROCEDURES START BELOW:
 
 -- Helpful function calls:
-select * from Orders;
-select * from OrderDetails;
-select * from Products;
-select * from Invoices;
-call create_order(5, 4, 2, @new_id);
-call update_order_total(1);
+-- select * from Orders;
+-- select * from OrderDetails;
+-- select * from Products;
+-- select * from Invoices;
+-- call create_order(5, 4, 2, @new_id);
+-- call update_order_total(1);
 
 -- Drops the create_order procedure
 DROP PROCEDURE IF EXISTS create_order;
@@ -428,11 +428,11 @@ DELIMITER ;
 
 -- ORDER DETAILS PROCEDURES START BELOW:
 
-select * from Orders;
-select * from OrderDetails;
-select * from Products;
-call create_order_details(4, 1, 2, @new_od_id);
-call update_order_details(12, 2, 4, @new_price);
+-- select * from Orders;
+-- select * from OrderDetails;
+-- select * from Products;
+-- call create_order_details(4, 1, 2, @new_od_id);
+-- call update_order_details(12, 2, 4, @new_price);
 
 DROP PROCEDURE IF EXISTS create_order_details;
 DELIMITER //
@@ -683,8 +683,8 @@ DELIMITER ;
 
 -- PRODUCTS SQL PROCEDURES HAVE ENDED
 
-Select * from Customers;
-Select * from Invoices;
-Select * from Orders;
-Select * from OrderDetails;
-Select * from Products;
+-- Select * from Customers;
+-- Select * from Invoices;
+-- Select * from Orders;
+-- Select * from OrderDetails;
+-- Select * from Products;

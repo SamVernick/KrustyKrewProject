@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import { MdAdd, MdRemove } from 'react-icons/md';
 	
-function SelectQuantity() {
-    const [count, setCount] = useState(1);
+function SelectQuantity({ value = 1, onChange}) {
+    const [count, setCount] = useState(value);
+
+    useEffect(() => {
+        setCount(value);
+    }, [value]);
+
     const increment = (e) => {
         // Prevent default behavior and stop propagation
         e.preventDefault();
         e.stopPropagation();
         
         if(count < 10) {
-            setCount(count + 1);
+            const newValue = count + 1;
+            setCount(newValue);
+            if(onChange){
+                onChange(newValue);
+            }
         }
     };
 
@@ -19,7 +29,11 @@ function SelectQuantity() {
         e.stopPropagation();
         
         if(count > 1) {
-            setCount(count - 1);
+            const newValue = count - 1;
+            setCount(newValue);
+            if(onChange){
+                onChange(newValue);
+            }
         }
     };
 
