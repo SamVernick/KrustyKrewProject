@@ -46,7 +46,12 @@ function OrderDetailsPage() {
     return (
         <>
             <h1 className="text-xl font-medium underline underline-offset-2 mb-4 text-black">Order Details</h1>
-            <OrderDetailsTable orderDetails={orderDetails}/>
+            {isLoading ? <div className="text-center py-4">Loading...</div> : <OrderDetailsTable orderDetails={orderDetails}/>}
+            {message && (
+                <div className={`p-3 my-4 rounded-lg ${message.includes('success') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {message}
+                </div>
+            )}
 
             <h2 className="text-xl font-medium underline underline-offset-2 mb-2 mt-6 text-black">Add New Order Detail</h2>
             <form className="border-2 border-black rounded-lg p-4 space-y-4">
@@ -54,6 +59,7 @@ function OrderDetailsPage() {
                     <div className="flex-1 space-y-2">
                         <label className="text-lg font-medium text-black">Order ID:</label>
                         <select className="border border-black rounded-lg p-2 w-full bg-cyan-100">
+                            <option value="">Select an Order</option>
                             {Array.from(new Set(orderDetails.map(detail => detail.orderID))).map(orderId => (
                                 <option key={orderId} value={orderId}>
                                     {orderId}
@@ -65,6 +71,7 @@ function OrderDetailsPage() {
                     <div className="flex-1 space-y-2">
                         <label className="text-lg font-medium text-black">Product Name:</label>
                         <select className="border border-black rounded-lg p-2 w-full bg-cyan-100">
+                            <option value="">Select a Product</option>
                             {orderDetails.map(details => (
                                 <option key={details.id} value={details.productName}>
                                     {details.productName}
@@ -88,6 +95,7 @@ function OrderDetailsPage() {
                     <div className="flex-1 space-y-2">
                         <label className="text-lg font-medium text-black">Order Detail ID:</label>
                         <select className="border border-black rounded-lg p-2 w-full bg-cyan-100">
+                            <option value="">Select an Order Detail</option>
                             {orderDetails.map(details => (
                                 <option key={details.id} value={details.id}>
                                     {details.id}
@@ -99,6 +107,7 @@ function OrderDetailsPage() {
                     <div className="flex-1 space-y-2">
                         <label className="text-lg font-medium text-black">Product Name:</label>
                         <select className="border border-black rounded-lg p-2 w-full bg-cyan-100">
+                            <option value="">Select a Product</option>
                             {orderDetails.map(details => (
                             <option key={details.id} value={details.productID}>
                                 {details.productName} (Product ID: {details.productID})
@@ -122,24 +131,26 @@ function OrderDetailsPage() {
             <form className="border-2 border-black rounded-lg p-4 space-y-4">
                 <div className="flex space-x-4">
                     <div className="flex-1 space-y-2">
-                        <label className="text-lg font-medium text-black">Product: </label>
-                        <select className="border border-black rounded-lg p-2 w-full bg-cyan-100">
-                            {orderDetails.map(details => (
-                            <option key={details.id} value={details.productID}>
-                                {details.productName} (Product ID: {details.productID})
-                            </option>
-                        ))}
-                        </select>
-                    </div>
-                    
-                    <div className="flex-1 space-y-2">
                         <label className="text-lg font-medium text-black">Order Number: </label>
                         <select className="border border-black rounded-lg p-2 w-full bg-cyan-100">
+                            <option value="">Select an Order</option>
                             {Array.from(new Set(orderDetails.map(detail => detail.orderID))).map(orderId => (
                                 <option key={orderId} value={orderId}>
                                     {orderId}
                                 </option>
                             ))}
+                        </select>
+                    </div>
+
+                    <div className="flex-1 space-y-2">
+                        <label className="text-lg font-medium text-black">Product: </label>
+                        <select className="border border-black rounded-lg p-2 w-full bg-cyan-100">
+                            <option value="">Select a Product</option>
+                            {orderDetails.map(details => (
+                            <option key={details.id} value={details.productID}>
+                                {details.productName} (Product ID: {details.productID})
+                            </option>
+                        ))}
                         </select>
                     </div>
                 </div>
