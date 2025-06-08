@@ -114,17 +114,6 @@ function CustomersPage() {
 
         try {
             setIsLoading(true);
-            const response = await fetch(`${API_URL}/api/customers/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    firstName: newCustomerFName,
-                    lastName: newCustomerLName
-                })
-            });
-            if(!response.ok){
-                throw new Error('Failed to create customer');
-            }
             setMessage('Customer created successfully!');
             fetchCustomers();
         } catch (error) {
@@ -137,7 +126,12 @@ function CustomersPage() {
     return (
         <>
             <h1 className="text-xl font-medium underline underline-offset-2 mb-4 text-black">List of Customers</h1>
-            <CustomersTable customers={customers}/>
+            {isLoading ? <div className="text-center py-4">Loading...</div> : <CustomersTable customers={customers}/>}
+            {message && (
+                <div className={`p-3 my-4 rounded-lg ${message.includes('success') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {message}
+                </div>
+            )}
 
             <h2 className="text-xl font-medium underline underline-offset-2 mb-2 mt-6 text-black">Create New Customer</h2>
             <form className="border-2 border-black rounded-lg p-4 space-y-4" onSubmit={handleAdd}>

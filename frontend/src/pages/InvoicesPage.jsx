@@ -69,7 +69,12 @@ function InvoicesPage() {
         <>
             <div className="bd-47">
                 <h1 className="text-xl font-medium underline underline-offset-2 mb-4 text-black">List of Invoices:</h1>
-                <InvoiceTable invoices={invoices}/>
+                {isLoading ? <div className="text-center py-4">Loading...</div> : <InvoiceTable invoices={invoices}/>}
+                {message && (
+                    <div className={`p-3 my-4 rounded-lg ${message.includes('success') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {message}
+                    </div>
+                )}
             </div>
 
             <h2 className="text-xl font-medium underline underline-offset-2 mb-2 mt-6 text-black">Pay an Invoice</h2>
