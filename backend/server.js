@@ -132,17 +132,17 @@ app.get('/api/invoices', async (req, res) => {
     }
 });
 
-// // Route to pay an invoice
-// app.put('/api/invoices', async (req, res) => {
-//     try {
-//         const invoiceId = req.body.id;
-//         await db.query('CALL pay_invoice(?)', [invoiceId]);
-//         res.status(200).json({ message: 'Invoice paid successfully' });
-//     } catch (error) {
-//         console.error("Error paying invoice:", error);
-//         res.status(500).json({ error: "Failed to pay invoice" });
-//     }
-// });
+// Route to pay an invoice
+app.put('/api/invoices', async (req, res) => {
+    try {
+        const invoiceId = req.body.id;
+        await db.query('CALL pay_invoice(?)', [invoiceId]);
+        res.status(200).json({ message: 'Invoice paid successfully' });
+    } catch (error) {
+        console.error("Error paying invoice:", error);
+        res.status(500).json({ error: "Failed to pay invoice" });
+    }
+});
 
 //Route to create a order detail
 app.post('/api/orderdetails', async (req, res) => {

@@ -1,9 +1,106 @@
 -- INVOICES PROCEDURES START BELOW:
+Select * from Invoices;
+Select * from Customers;
+call pay_invoice(2);
 
+DROP PROCEDURE IF EXISTS pay_invoice;
+DELIMITER //
+
+-- Creates pay_invoice procedure
+CREATE PROCEDURE pay_invoice(
+    IN i_id INT
+)
+COMMENT 'Updates the invoice setting it to be paid'
+proc_end: BEGIN
+    DECLARE c_id INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    -- Makes the error handler message
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error: Could not update Invoices!' AS message;
+    END;
+
+    START TRANSACTION;
+
+    -- Checks if the id passed in exists
+    IF EXISTS (SELECT 1 FROM Invoices WHERE id = i_id) THEN 
+        UPDATE Invoices SET paid = 1 WHERE id = i_id;
+        SELECT 'Updated Invoices successfully!' AS message;
+        SELECT customerID INTO c_id FROM Invoices WHERE id = i_id;
+        IF (c_id IS NOT NULL) THEN 
+            CALL update_customer_totals(c_id);
+        ELSE 
+            ROLLBACK;
+            SELECT 'Error: Customer id does not exist for that Invoice Number try again.' AS message;
+            LEAVE proc_end;
+        END IF;
+    ELSE
+        -- if the id couldn't be found rollsback
+        ROLLBACK;
+        SELECT 'Error: Invoices id does not exist for that Invoice Number try again.' AS message;
+        LEAVE proc_end;
+    END IF;
+    COMMIT;
+END //
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS update_customer_totals;
+DELIMITER //
+
+-- Makes the update_customer_totals procedure
+CREATE PROCEDURE update_customer_totals(
+    IN c_id INT
+)
+COMMENT 'Updates the total spent for the customer from the Customers table'
+proc_end: BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+
+    -- Creates the error handler message
+    BEGIN 
+        ROLLBACK;
+        SELECT 'Deletion error' AS message;
+    END;
+
+    START TRANSACTION;
+    SELECT CONCAT('Trigger is firing for customer: ', c_id) AS message;
+
+    -- Checks if the id passed in exists
+    IF EXISTS (SELECT 1 FROM Customers WHERE id = c_id) THEN 
+        UPDATE Customers
+        SET moneySpent = (
+            SELECT SUM(total)
+            FROM Invoices
+            WHERE customerID = c_id AND paid = 1
+        )
+        WHERE id = c_id;
+        SELECT 'Updated Customers successfully!' AS message;
+    ELSE
+        -- if the id couldn't be found rollsback
+        ROLLBACK;
+        SELECT 'Error: Customer id does not exist for that Customer Number try again.' AS message;
+        LEAVE proc_end;
+    END IF;
+    COMMIT;
+
+END //
+DELIMITER ; 
+
+
+
+-- DROP TRIGGER IF EXISTS trigger_invoice_paid;
+-- DELIMITER //
+
+-- CREATE TRIGGER trigger_invoice_paid
+-- AFTER UPDATE ON Invoices
+-- FOR EACH ROW
+-- BEGIN
+--     CALL update_customer_totals(NEW.customerID);
+-- END //
+-- DELIMITER ;
 
 -- INVOICES HAVE ENDED
 
-
+SELECT 'Made it to trigger!' AS message;
 
 -- CUSTOMER PROCEDURES START BELOW:
 -- select * from Customers;
@@ -120,41 +217,6 @@ END //
 DELIMITER ; 
 
 
-DROP PROCEDURE IF EXISTS update_customer_totals;
-DELIMITER //
-
--- Makes the delete_customers procedure
-CREATE PROCEDURE update_customer_totals(
-    IN c_id INT,
-    OUT updated_total decimal(6,2)
-)
-COMMENT 'Updates the total spent for the customer from the Customers table'
-BEGIN 
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
-
-    -- Creates the error handler message
-    BEGIN 
-        ROLLBACK;
-        SELECT 'Deletion error' AS message;
-    END;
-
-    START TRANSACTION;
-    -- SELECT total from Invoices INNER JOIN Customers ON Invoices.customerID = Customer.id WHERE Customers.id = c_id AND paid = 1;
-
-END //
-DELIMITER ; 
-
-
-
-DROP TRIGGER IF EXISTS trigger_invoice_paid;
-DELIMITER //
-
-CREATE TRIGGER trigger_invoice_paid
-AFTER UPDATE ON Invoices
-BEGIN
-    CALL update_customer_totals();
-END //
-DELIMITER ;
 
 -- CUSTOMER PROCEDURES HAVE ENDED
 
