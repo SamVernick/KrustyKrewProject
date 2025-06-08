@@ -44,49 +44,6 @@ proc_end: BEGIN
 END //
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS update_customer_totals;
-DELIMITER //
-
--- Makes the update_customer_totals procedure
-CREATE PROCEDURE update_customer_totals(
-    IN c_id INT
-)
-COMMENT 'Updates the total spent for the customer from the Customers table'
-proc_end: BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
-
-    -- Creates the error handler message
-    BEGIN 
-        ROLLBACK;
-        SELECT 'Deletion error' AS message;
-    END;
-
-    START TRANSACTION;
-    SELECT CONCAT('Trigger is firing for customer: ', c_id) AS message;
-
-    -- Checks if the id passed in exists
-    IF EXISTS (SELECT 1 FROM Customers WHERE id = c_id) THEN 
-        UPDATE Customers
-        SET moneySpent = (
-            SELECT SUM(total)
-            FROM Invoices
-            WHERE customerID = c_id AND paid = 1
-        )
-        WHERE id = c_id;
-        SELECT 'Updated Customers successfully!' AS message;
-    ELSE
-        -- if the id couldn't be found rollsback
-        ROLLBACK;
-        SELECT 'Error: Customer id does not exist for that Customer Number try again.' AS message;
-        LEAVE proc_end;
-    END IF;
-    COMMIT;
-
-END //
-DELIMITER ; 
-
-
-
 -- DROP TRIGGER IF EXISTS trigger_invoice_paid;
 -- DELIMITER //
 
@@ -217,95 +174,141 @@ END //
 DELIMITER ; 
 
 
+DROP PROCEDURE IF EXISTS update_customer_totals;
+DELIMITER //
+
+-- Makes the update_customer_totals procedure
+CREATE PROCEDURE update_customer_totals(
+    IN c_id INT
+)
+COMMENT 'Updates the total spent for the customer from the Customers table'
+proc_end: BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+
+    -- Creates the error handler message
+    BEGIN 
+        ROLLBACK;
+        SELECT 'Deletion error' AS message;
+    END;
+
+    START TRANSACTION;
+    SELECT CONCAT('Trigger is firing for customer: ', c_id) AS message;
+
+    -- Checks if the id passed in exists
+    IF EXISTS (SELECT 1 FROM Customers WHERE id = c_id) THEN 
+        UPDATE Customers
+        SET moneySpent = (
+            SELECT SUM(total)
+            FROM Invoices
+            WHERE customerID = c_id AND paid = 1
+        )
+        WHERE id = c_id;
+        SELECT 'Updated Customers successfully!' AS message;
+    ELSE
+        -- if the id couldn't be found rollsback
+        ROLLBACK;
+        SELECT 'Error: Customer id does not exist for that Customer Number try again.' AS message;
+        LEAVE proc_end;
+    END IF;
+    COMMIT;
+
+END //
+DELIMITER ; 
+
 
 -- CUSTOMER PROCEDURES HAVE ENDED
 
 
+
 -- ORDER PROCEDURES START BELOW:
+select * from Orders;
+select * from Products;
+call create_order(1, 3, 2, @new_id);
+
+-- Drops the create_order procedure
+DROP PROCEDURE IF EXISTS create_order;
+DELIMITER //
+
+-- Creates create_order procedure
+CREATE PROCEDURE create_order(
+    IN c_id INT,
+    IN p_id INT,
+    IN quantity INT,
+    OUT new_order_id INT
+)
+COMMENT "Adds a new order to Orders table"
+BEGIN
+    DECLARE o_id int;
+    -- Creates the error handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN 
+        ROLLBACK;
+        SET new_order_id = -99;
+    END;
+
+    START TRANSACTION;
+    IF EXISTS (SELECT 1 FROM Orders INNER JOIN Customers ON Orders.customerID = Customers.id WHERE Customers.id = c_id) THEN
+        IF EXISTS (SELECT 1 FROM Products WHERE id = p_id) THEN
+            INSERT INTO `Orders` (customerID, orderTotal)
+            VALUES (c_id, ((SELECT Products.price FROM Products WHERE Products.id = p_id)*quantity));
+
+            IF ROW_COUNT() = 0 THEN 
+                ROLLBACK;
+                SELECT 'Creation error: Insertion failed' AS message;
+            ELSE 
+                -- If the creation was a success it commits the changes and sets the message as being successful
+                SET o_id = LAST_INSERT_ID();
+                SET new_order_id = o_id;
+                COMMIT;
+                SELECT 'Order added to Orders table!' AS message;
+            END IF;
+        ELSE
+            ROLLBACK;
+            SELECT 'Creation error: Product id is incorrect' AS message;
+        END IF;
+    ELSE
+        ROLLBACK;
+        SELECT 'Creation error: Order id is incorrect' AS message;
+    END IF;
+
+END //
+DELIMITER ;
 
 
--- -- Drops the create_orders procedure
--- DROP PROCEDURE IF EXISTS create_orders;
--- DELIMITER //
+-- Deletes the delete_order procedure
+DROP PROCEDURE IF EXISTS delete_order;
+DELIMITER //
 
--- -- Creates create_orders procedure
--- CREATE PROCEDURE create_orders(
---     IN c_id INT,
---     OUT total decimal(6,2),
---     OUT new_order_id INT
--- )
--- COMMENT "Adds a new order to Orders table"
--- BEGIN
---     DECLARE o_id int;
---     DECLARE t_price decimal(6,2);
---     -- Creates the error handler
---     DECLARE EXIT HANDLER FOR SQLEXCEPTION
---     BEGIN 
---         ROLLBACK;
---         SET new_order_detail_id = -99;
---     END;
+-- Makes the delete_order procedure
+CREATE PROCEDURE delete_order(
+    IN o_id INT   -- order ID
+)
+COMMENT 'Deletes a order from the Orders table, after customer has paid'
+BEGIN 
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
 
---     START TRANSACTION;
---     IF EXISTS(SELECT Customers.id FROM Orders INNER JOIN Customers ON OrderDetails.customerID = Customers.id WHERE Customers.id = c_id) THEN
---         Select into t_price 
---         INSERT INTO `Orders` (customerID, orderTotal)
---         VALUES (c_id, ((SELECT Products.price FROM Products WHERE Products.id = p_id)*quantity));
+    -- Creates the error handler message
+    BEGIN 
+        ROLLBACK;
+        SELECT 'Deletion error' AS message;
+    END;
 
---         IF ROW_COUNT() = 0 THEN 
---             ROLLBACK;
---             SELECT 'Creation error: Insertion failed' AS message;
---         ELSE 
---             -- If the creation was a success it commits the changes and sets the message as being successful
---             SET od_id = LAST_INSERT_ID();
---             SET new_order_detail_id = od_id;
---             COMMIT;
---             SELECT 'Order Detail added to OrderDetails table!' AS message;
---         END IF;
---     ELSE
---         ROLLBACK;
---         SELECT 'Creation error: Product/Order id is incorrect' AS message;
---     END IF;
+    START TRANSACTION;
 
--- END //
--- DELIMITER ;
+    -- Deletes the order from the orders table matching the order id passed in
+   DELETE FROM Orders WHERE Orders.id = o_id;
+    -- If the deletion fails then it prints out the error message
+    IF ROW_COUNT() = 0 THEN 
+        ROLLBACK;
+        SELECT 'Deletion error' AS message;
+    ELSE 
+        -- If the deletion was a success it commits the changes and sets the message as being successful
+        COMMIT;
+        SELECT 'Order deleted from Orders table' AS message;
+    END IF;
 
-
--- -- Drops the update_order procedure
--- DROP PROCEDURE IF EXISTS update_order;
--- DELIMITER //
-
--- -- Creates update_order procedure
--- CREATE PROCEDURE update_order(
---     IN od_id INT, -- order details ID
---     IN p_id INT,
---     IN new_quantity INT,
---     OUT new_price decimal(6,2)
--- )
--- COMMENT 'Updates the quantity of a product that is already in the Order Details table'
--- proc_end: BEGIN
---     DECLARE product_id INT;
---     DECLARE EXIT HANDLER FOR SQLEXCEPTION
---     -- Makes the error handler message
---     BEGIN
---         ROLLBACK;
---         SELECT 'Error: Could not update OrderDetails!' AS message;
---     END;
-
---     START TRANSACTION;
-
---     -- Checks if the all the ids exists currently in the OrderDetails table for that specific order
---     IF EXISTS (SELECT OrderDetails.id, Products.id FROM OrderDetails INNER JOIN Products ON OrderDetails.productID = Products.id WHERE OrderDetails.id = od_id AND Products.id = p_id) THEN 
---         UPDATE OrderDetails SET orderQuantity = new_quantity, priceTotal = ((SELECT Products.price FROM Products WHERE Products.id = p_id)*new_quantity) WHERE id = od_id AND productID = p_id;
---         SELECT 'Updated OrderDetails successfully!' AS message;
---     ELSE
---         -- if the id couldn't be found rollsback
---         ROLLBACK;
---         SELECT 'Error: Products/Orders/OrderDetails id does not exist for that Order Number try again.' AS message;
---         LEAVE proc_end;
---     END IF;
---     COMMIT;
--- END //
--- DELIMITER ;
+END //
+DELIMITER ; 
 
 
 -- ORDER PROCEDURES HAVE ENDED
@@ -429,7 +432,7 @@ BEGIN
     ELSE 
         -- If the deletion was a success it commits the changes and sets the message as being successful
         COMMIT;
-        SELECT 'Product deleted from Product table' AS message;
+        SELECT 'Order detail deleted from Order Details table' AS message;
     END IF;
 
 END //
