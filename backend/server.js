@@ -297,7 +297,7 @@ app.post('/api/orders/:id/orderdetails', async (req, res) => {
         const pid = req.body.pid;
         const amount = req.body.amount;
 
-        await db.query('CALL add_order_detail(?, ?, ?)', [oid, pid, amount]);
+        await db.query('CALL add_order_details(?, ?, ?)', [oid, pid, amount]);
         res.status(200).json({ message: 'Order detail added successfully' });
     } catch (error) {
         console.error("Error adding order detail:", error);
@@ -318,7 +318,7 @@ app.put('/api/orderdetails/:id', async (req, res) => {
         }
         const pid = orderDetail[0].productID;
 
-        await db.query('CALL update_order_details(?, ?, ?, @new_price)', [id, pid, amount]);
+        await db.query('CALL update_order_details(?, ?, ?)', [id, pid, amount]);
         res.status(200).json({ message: 'Order detail updated successfully' });
     } catch (error) {
         console.error("Error updating order detail:", error);
@@ -330,7 +330,7 @@ app.put('/api/orderdetails/:id', async (req, res) => {
 app.delete('/api/orderdetails/:id', async (req, res) => {
     try {
         const id = req.params.id;
-        await db.query('CALL delete_order_detail(?)', [id]);
+        await db.query('CALL delete_order_details(?)', [id]);
         res.status(200).json({ message: 'Order detail deleted successfully' });
     } catch (error) {
         console.error("Error deleting order detail:", error);

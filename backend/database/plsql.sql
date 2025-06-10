@@ -442,7 +442,7 @@ BEGIN
 
 END //
 DELIMITER ; 
-
+-- CALL delete_order_details(SELECT id from OrderDetails WHERE orderID = o_id);
 
 -- ORDER PROCEDURES HAVE ENDED
 
@@ -455,7 +455,7 @@ DELIMITER ;
 -- select * from OrderDetails;
 -- select * from Products;
 -- call create_order_details(4, 1, 2, @new_od_id);
--- call update_order_details(12, 2, 4, @new_price);
+-- call update_order_details(12, 2, 4);
 
 -- Drops create_order_details procedure
 DROP PROCEDURE IF EXISTS create_order_details;
@@ -516,12 +516,12 @@ DELIMITER //
 CREATE PROCEDURE update_order_details(
     IN od_id INT, -- order details ID
     IN p_id INT,
-    IN new_quantity INT,
-    OUT new_price decimal(6,2)
+    IN new_quantity INT
 )
 COMMENT 'Updates the quantity of a product that is already in the Order Details table'
 proc_end: BEGIN
     DECLARE product_id INT;
+    DECLARE order_id INT;
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     -- Makes the error handler message
     BEGIN
@@ -536,7 +536,8 @@ proc_end: BEGIN
         UPDATE OrderDetails SET orderQuantity = new_quantity, priceTotal = ((SELECT Products.price FROM Products WHERE Products.id = p_id)*new_quantity) WHERE id = od_id AND productID = p_id;
         SELECT 'Updated OrderDetails successfully!' AS message;
         -- updates order total
-        CALL update_order_total(o_id);
+        SELECT orderID INTO order_id from OrderDetails WHERE id = od_id;
+        CALL update_order_total(order_id);
     ELSE
         -- if the id couldn't be found rollsback
         ROLLBACK;
@@ -558,6 +559,7 @@ CREATE PROCEDURE delete_order_details(
 )
 COMMENT 'Deletes a product from the OrderDetails table, which is part of a certain order number'
 BEGIN 
+    DECLARE order_id INT;
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
 
     -- Creates the error handler message
@@ -569,6 +571,7 @@ BEGIN
     START TRANSACTION;
 
     -- Deletes the product from the order number matching the order details id passed in
+   SELECT orderID INTO order_id from OrderDetails WHERE id = od_id;
    DELETE FROM OrderDetails WHERE OrderDetails.id = od_id;
     -- If the deletion fails then it prints out the error message
     IF ROW_COUNT() = 0 THEN 
@@ -576,6 +579,7 @@ BEGIN
         SELECT 'Deletion error' AS message;
     ELSE 
         -- If the deletion was a success it commits the changes and sets the message as being successful
+        CALL update_order_total(order_id);
         COMMIT;
         SELECT 'Order detail deleted from Order Details table' AS message;
     END IF;
