@@ -559,6 +559,7 @@ CREATE PROCEDURE delete_order_details(
 )
 COMMENT 'Deletes a product from the OrderDetails table, which is part of a certain order number'
 BEGIN 
+    DECLARE order_id INT;
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
 
     -- Creates the error handler message
@@ -570,6 +571,7 @@ BEGIN
     START TRANSACTION;
 
     -- Deletes the product from the order number matching the order details id passed in
+   SELECT orderID INTO order_id from OrderDetails WHERE id = od_id;
    DELETE FROM OrderDetails WHERE OrderDetails.id = od_id;
     -- If the deletion fails then it prints out the error message
     IF ROW_COUNT() = 0 THEN 
@@ -577,7 +579,7 @@ BEGIN
         SELECT 'Deletion error' AS message;
     ELSE 
         -- If the deletion was a success it commits the changes and sets the message as being successful
-        CALL update_order_total(o_id);
+        CALL update_order_total(order_id);
         COMMIT;
         SELECT 'Order detail deleted from Order Details table' AS message;
     END IF;
