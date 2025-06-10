@@ -172,7 +172,7 @@ app.put('/api/orderdetails/:id', async (req, res) => {
             throw Error ("Order quantity is not a number.");
         }
         // Use the stored procedure to update the product
-        await db.query('CALL update_order_details(?, ?, ?, @new_price)', [orderDetailId, productId, order_quantity]);
+        await db.query('CALL update_order_details(?, ?, ?)', [orderDetailId, productId, order_quantity]);
         res.status(200).json({ message: 'Order detail updated successfully' });
     } catch (error) {
         console.error("Error updating order detail:", error);
